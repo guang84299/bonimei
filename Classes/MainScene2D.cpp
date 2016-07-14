@@ -138,18 +138,21 @@ bool MainScene2D::init()
         }
         
         Label * label = Label::createWithSystemFont("", "", 38);
+        label->setColor(Color3B::BLUE);
         label->setPosition(size.width/2, size.height*0.6f);
         uilayer->addChild(label,100);
         label->setOpacity(0);
         label->setName("label");
         
         Label *label2 = Label::createWithSystemFont("", "", 28);
+        label2->setColor(Color3B::BLUE);
         label2->setPosition(size.width/2, size.height*0.6f+70);
         uilayer->addChild(label2);
         label2->setOpacity(0);
         label2->setName("label2");
         
         l_score = Label::createWithSystemFont("", "", 28);
+        l_score->setColor(Color3B::BLUE);
         l_score->setAnchorPoint(Vec2(0.5,1));
         l_score->setPosition(size.width/2, size.height-10);
         uilayer->addChild(l_score,100);
@@ -222,6 +225,7 @@ bool MainScene2D::init()
         v_font =  FileUtils::getInstance()->getValueVectorFromFile("fonts/font.plist");
         
         auto rain = ParticleRain::create();
+        rain->setStartColor(Color4F::MAGENTA);
         rain->setPosition(Vec2(size.width/2,size.height));
         this->addChild(rain);
     }
@@ -440,7 +444,7 @@ void MainScene2D::addGameTouchLayer(bool isWin)
         std::string s = v_font.at(3).asString();
         Text* label = Text::create(s, "", 50);
         label->setColor(Color3B::WHITE);
-        label->setPosition(Vec2(size.width / 2.0f, size.height * 0.75f));
+        label->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f));
         layer->addChild(label);
         
         s = v_font.at(15).asString();
@@ -448,7 +452,7 @@ void MainScene2D::addGameTouchLayer(bool isWin)
         sprintf(c, "%d", zongfen);
         Text* label2 = Text::create(s+c+v_font.at(14).asString(), "", 30);
         label2->setColor(Color3B::WHITE);
-        label2->setPosition(Vec2(size.width / 2.0f, size.height * 0.75f-50));
+        label2->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f-50));
         layer->addChild(label2);
         
         auto diban = Sprite::create("diban.png");
@@ -483,7 +487,7 @@ void MainScene2D::addGameTouchLayer(bool isWin)
         std::string s = v_font.at(2).asString();
         Text* label = Text::create(s, "", 50);
         label->setColor(Color3B::WHITE);
-        label->setPosition(Vec2(size.width / 2.0f, size.height * 0.75f));
+        label->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f));
         layer->addChild(label);
         
 //        s = v_font.at(13).asString();
@@ -491,7 +495,7 @@ void MainScene2D::addGameTouchLayer(bool isWin)
 //        sprintf(c, "%d", zongfen);
         Text* label2 = Text::create(v_font.at(16).asString(), "", 30);
         label2->setColor(Color3B::WHITE);
-        label2->setPosition(Vec2(size.width / 2.0f, size.height * 0.75f-50));
+        label2->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f-50));
         layer->addChild(label2);
         
         auto diban = Sprite::create("diban.png");
@@ -1060,13 +1064,13 @@ void MainScene2D::createPages()
         
         std::string s = v_font.at(i).asString();
         Text* label = Text::create(s, "", 30);
-        label->setColor(Color3B::WHITE);
+        label->setColor(Color3B::BLUE);
         label->setPosition(Vec2(layout->getContentSize().width / 2.0f, layout->getContentSize().height * 0.9f));
         layout->addChild(label);
         
         s = v_font.at(12).asString();
         label = Text::create(s, "", 20);
-        label->setColor(Color3B::WHITE);
+        label->setColor(Color3B::BLUE);
         label->setPosition(Vec2(layout->getContentSize().width / 2.0f, layout->getContentSize().height * 0.9f-30));
         layout->addChild(label);
         
@@ -1234,22 +1238,33 @@ void HomeScene::goHome()
     auto homebg = Sprite::create("bg.jpg");
     homebg->setPosition(s.width/2,s.height/2);
     this->addChild(homebg);
+    
+    
+    auto tanzi = Sprite::create("tanzi.png");
+    tanzi->setPosition(0, 80);
+    this->addChild(tanzi);
+    
+    auto bottom = Sprite::create("bottom.png");
+    bottom->setAnchorPoint(Vec2(0.5,0));
+    bottom->setPosition(s.width/2, 0);
+    this->addChild(bottom);
  
 
     Button* btn_start = Button::create("cuangguan.png");
-    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.7f));
+    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.6f));
     btn_start->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
     this->addChild(btn_start);
     btn_start->setName("guoguan");
     
     btn_start = Button::create("suiji.png");
-    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.5f));
+    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.4f));
     btn_start->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
     this->addChild(btn_start);
     btn_start->setName("suiji");
     
     auto diban = Sprite::create("diban.png");
-    diban->setPosition(s.width/3.0f,s.height*0.2f);
+    diban->setAnchorPoint(Vec2(0.5,1));
+    diban->setPosition(s.width/3.0f+60,s.height);
     this->addChild(diban);
     
     Button* btn = Button::create("fankui.png");
@@ -1260,7 +1275,8 @@ void HomeScene::goHome()
     
     
     diban = Sprite::create("diban.png");
-    diban->setPosition(s.width/3.0f*2,s.height*0.2f);
+    diban->setAnchorPoint(Vec2(0.5,1));
+    diban->setPosition(s.width/3.0f*2-60,s.height);
     this->addChild(diban);
     
     btn = Button::create("fenxiang.png");
@@ -1269,6 +1285,10 @@ void HomeScene::goHome()
     diban->addChild(btn);
     btn->setName("fenxiang");
     //Director::getInstance()->replaceScene(MainScene2D::create());
+    
+    tanzi->runAction(RepeatForever::create(Sequence::create(
+                                                            MoveTo::create(12, Vec2(s.width+tanzi->getContentSize().width/2,tanzi->getPositionY())),
+                                                            MoveTo::create(0, Vec2(-tanzi->getContentSize().width/2,tanzi->getPositionY())),NULL)));
 }
 
 void HomeScene::touchEvent(Ref *pSender, Widget::TouchEventType type)

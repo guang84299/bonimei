@@ -42,7 +42,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
         glview = GLViewImpl::createWithRect("bonimei", Rect(0, 0, designResolutionSize.width, designResolutionSize.height));
-        //glview->setFrameSize(1200, 640);
+        //glview->setFrameSize(860, 640);
 #else
         glview = GLViewImpl::create("bonimei");
 #endif
@@ -50,7 +50,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
     }
 
     // turn on display FPS
-    director->setDisplayStats(true);
+    //director->setDisplayStats(true);
 
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);

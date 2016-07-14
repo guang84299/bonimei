@@ -1,4 +1,5 @@
 cocos2d/
+bin/
 proj.android-studio/
 proj.ios_mac/
 proj.linux/
