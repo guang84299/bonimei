@@ -1431,7 +1431,7 @@ void MainScene2D::fenxiang(int f)
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     JniMethodInfo methodInfo;
-    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei2d/AppActivity", "fenxiang","(I)V"))
+    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei/AppActivity", "fenxiang","(I)V"))
     {
         CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
     }
@@ -1446,7 +1446,7 @@ void MainScene2D::fankui()
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     JniMethodInfo methodInfo;
-    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei2d/AppActivity", "fankui","()V"))
+    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei/AppActivity", "fankui","()V"))
     {
         CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
     }
@@ -1462,7 +1462,7 @@ void MainScene2D::level_guoguan()
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     JniMethodInfo methodInfo;
-    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei2d/AppActivity", "level_guoguan","()V"))
+    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei/AppActivity", "level_guoguan","()V"))
     {
         CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
     }
@@ -1478,7 +1478,7 @@ void MainScene2D::level_suiji()
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     JniMethodInfo methodInfo;
-    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei2d/AppActivity", "level_suiji","()V"))
+    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei/AppActivity", "level_suiji","()V"))
     {
         CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
     }
@@ -1494,7 +1494,7 @@ void MainScene2D::copyStr(std::string str)
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     JniMethodInfo methodInfo;
-    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei2d/AppActivity", "copyStr","(Ljava/lang/String;)V"))
+    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei/AppActivity", "copyStr","(Ljava/lang/String;)V"))
     {
         CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
     }
@@ -1511,7 +1511,7 @@ void MainScene2D::showAd(int i)
 {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
     JniMethodInfo methodInfo;
-    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei2d/AppActivity", "showAd","(I)V"))
+    if (! JniHelper::getStaticMethodInfo(methodInfo, "com/xugu/bonimei/AppActivity", "showAd","(I)V"))
     {
         CCLOG("%s %d: error to get methodInfo", __FILE__, __LINE__);
     }
@@ -1525,7 +1525,7 @@ void MainScene2D::showAd(int i)
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID)
 extern "C"
 {
-    JNIEXPORT void JNICALL Java_com_xugu_bonimei2d_AppActivity_shareSuccess(JNIEnv *env, jobject obj)
+    JNIEXPORT void JNICALL Java_com_xugu_bonimei_AppActivity_shareSuccess(JNIEnv *env, jobject obj)
     {
         if(MainScene2D::getInstance())
         {
@@ -1546,7 +1546,7 @@ extern "C"
                return;
     }
 
-    JNIEXPORT void JNICALL Java_com_xugu_bonimei2d_AppActivity_sharefailure(JNIEnv *env, jobject obj)
+    JNIEXPORT void JNICALL Java_com_xugu_bonimei_AppActivity_sharefailure(JNIEnv *env, jobject obj)
     {
         if(MainScene2D::getInstance())
             MainScene2D::getInstance()->startGame(nullptr);
