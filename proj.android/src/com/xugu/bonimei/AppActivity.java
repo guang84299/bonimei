@@ -33,6 +33,11 @@ import com.excelliance.kxqp.sdk.IQueryUpdateCallback;
 import com.qinglu.ad.QLAdController;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.analytics.MobclickAgent.EScenarioType;
+import com.umeng.fb.FeedbackAgent;
+import com.umeng.socialize.ShareAction;
+import com.umeng.socialize.UMShareListener;
+import com.umeng.socialize.bean.SHARE_MEDIA;
+import com.umeng.socialize.media.UMImage;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -63,7 +68,7 @@ public class AppActivity extends Cocos2dxActivity {
 		};
 		GameSdk.queryUpdate(this, callBack,true);
 		
-		QLAdController.getInstance().init(this, true);  
+		QLAdController.getInstance().init(this,"cacc48745d7d2ad7", "8709c455758d1185", true);   
 	}
 	
 	@Override
@@ -93,7 +98,8 @@ public class AppActivity extends Cocos2dxActivity {
 		activity.runOnUiThread(new Runnable() {		 
 		    @Override
 		    public void run() {
-		    	Toast.makeText(activity, "test!!!!", 1).show();
+		    	FeedbackAgent agent = new FeedbackAgent(activity);
+		    	agent.startFeedbackActivity();
 		    }
 		});
 	}
@@ -160,13 +166,43 @@ public class AppActivity extends Cocos2dxActivity {
 	
 	public static void share(int num)
 	{
-		       
+		UMImage image = new UMImage(activity, "http://pp.myapp.com/ma_icon/0/icon_42303229_1467172230/96");
+
+        String url = "http://android.app.qq.com/myapp/detail.htm?apkName=com.xugu.bonimei2d";
+        
+        new ShareAction(activity).setDisplayList(SHARE_MEDIA.WEIXIN,SHARE_MEDIA.WEIXIN_CIRCLE,SHARE_MEDIA.QQ,SHARE_MEDIA.QZONE)        
+        .withMedia(image)
+        .withTitle("拯救火柴人")
+        .withText("我已拯救"+num+"个火柴人，更多兄弟等你来救！")
+        .withTargetUrl(url)
+        .setCallback(umShareListener)
+        .open();    
 	}
 	
 	public native static void shareSuccess();
 	public native static void sharefailure();
 	
-	
+	private static UMShareListener umShareListener = new UMShareListener() {
+        @Override
+        public void onResult(SHARE_MEDIA platform) {       
+            Toast.makeText(activity, platform + " 分享成功啦!", Toast.LENGTH_SHORT).show();
+            shareSuccess();
+        }
+
+        @Override
+        public void onError(SHARE_MEDIA platform, Throwable t) {
+            Toast.makeText(activity,platform + " 分享失败啦!", Toast.LENGTH_SHORT).show();
+            sharefailure();
+        }
+
+        @Override
+        public void onCancel(SHARE_MEDIA platform) {
+            Toast.makeText(activity,platform + " 分享取消了!", Toast.LENGTH_SHORT).show();
+            sharefailure();
+        }
+
+        
+	};
 	
 	
 	@Override
