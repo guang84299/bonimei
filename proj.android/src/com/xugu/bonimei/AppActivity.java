@@ -171,9 +171,9 @@ public class AppActivity extends Cocos2dxActivity {
         String url = "http://android.app.qq.com/myapp/detail.htm?apkName=com.xugu.bonimei2d";
         
         new ShareAction(activity).setDisplayList(SHARE_MEDIA.WEIXIN,SHARE_MEDIA.WEIXIN_CIRCLE,SHARE_MEDIA.QQ,SHARE_MEDIA.QZONE)        
-        .withMedia(image)
-        .withTitle("拯救火柴人")
-        .withText("我已拯救"+num+"个火柴人，更多兄弟等你来救！")
+        .withMedia(image)        
+        .withTitle("无聊治愈所")
+        .withText("我已治疗"+num+"个小伙伴，更多小伙伴等你来治疗！")
         .withTargetUrl(url)
         .setCallback(umShareListener)
         .open();    
