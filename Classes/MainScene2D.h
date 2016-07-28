@@ -72,6 +72,7 @@ public:
     
     void shuaxin();
     void wudi();
+    void guanqia();
 protected:
     Layer* _gameLayer;
     bool _debugDraw;
@@ -96,8 +97,12 @@ protected:
     int score;
     int zongfen;
     Label* l_score;
+    Label* l_time;
+    Label* l_coin;
     float dt_stop = 0;
     float dt_playSound = 0;
+    float dt_judgeStart = 0;
+    float dt_time = 0;
     Vec2 lastDir;
     ValueVector v_font;
 };

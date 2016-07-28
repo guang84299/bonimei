@@ -20,6 +20,9 @@
 using namespace CocosDenshion;
 
 #define DRAG_BODYS_TAG 1
+#define MAX_LEVEL 20
+#define DT_ISSTART 0.2
+
 
 static MainScene2D* _instance = nullptr;
 bool MainScene2D::init()
@@ -108,6 +111,14 @@ bool MainScene2D::init()
             btn->loadTextureNormal("sound2.png");
         }
         
+        btn = Button::create("002.png");
+        btn->setAnchorPoint(Vec2(1,1));
+        btn->setPosition(Vec2(diban->getPositionX() + 160,size.height-40));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        uilayer->addChild(btn);
+        btn->setName("guanqia");
+        
+        
         diban = Sprite::create("diban.png");
         diban->setAnchorPoint(Vec2(0,1));
         diban->setPosition(size.width*0.9f,size.height);
@@ -170,7 +181,18 @@ bool MainScene2D::init()
         l_score->setAnchorPoint(Vec2(0.5,1));
         l_score->setPosition(size.width/2, size.height-10);
         uilayer->addChild(l_score,100);
+        
+        l_time = Label::createWithSystemFont("", "", 22);
+        l_time->setColor(Color3B::BLUE);
+        l_time->setAnchorPoint(Vec2(0.5,1));
+        l_time->setPosition(size.width/2, size.height-40);
+        uilayer->addChild(l_time,100);
 
+        l_coin = Label::createWithSystemFont("", "", 24);
+        l_coin->setColor(Color3B::BLUE);
+        l_coin->setAnchorPoint(Vec2(0,1));
+        l_coin->setPosition(size.width/2+100, size.height-10);
+        uilayer->addChild(l_coin,100);
         
         _gameLayer = Layer::create();
         this->addChild(_gameLayer);
@@ -277,6 +299,7 @@ void MainScene2D::update(float dt)
                     isStart = false;
                     judgeStart = true;
                     dt_stop = 0;
+                    dt_judgeStart = 1.5f;
                     Label * node = (Label *)(this->getChildByName("uilayer")->getChildByName("label"));
                     node->setOpacity(255);
                     node->setString(v_font.at(4).asString());
@@ -313,8 +336,18 @@ void MainScene2D::update(float dt)
                 vecs_min.erase(vecs_min.begin()+i);
                 vecs_max.erase(vecs_max.begin()+i);
             }
+            
+            for(int j=0;j<moves.size();j++)
+            {
+                if(moves[j] == sprites[i])
+                {
+                    moves.erase(moves.begin()+j);
+                    break;
+                }
+            }
+            
             sprites.erase(sprites.begin()+i);
-
+            
             if(sprites.size() == 0)
             {
                 gameWin();
@@ -357,9 +390,9 @@ void MainScene2D::update(float dt)
     
     
     if(judgeStart)
-    {
+    {        
         dt_stop += dt;
-        if(dt_stop > 1.5f)
+        if(dt_stop > dt_judgeStart)
         {
             dt_stop = 0;
             bool isb = false;
@@ -390,6 +423,7 @@ void MainScene2D::update(float dt)
             }
             if(!isb)
             {
+                dt_judgeStart = DT_ISSTART;
                 judgeStart = false;
                 Label * node = (Label *)(this->getChildByName("uilayer")->getChildByName("label"));
                 node->setString(v_font.at(5).asString());
@@ -399,6 +433,18 @@ void MainScene2D::update(float dt)
                 node = (Label *)(this->getChildByName("uilayer")->getChildByName("label2"));
                 node->setString("");
             }
+        }
+    }
+    
+    if(isStart)
+    {
+        dt_time -= dt;
+        int t = dt_time;
+        if(t >= 0)
+        {
+            char c[8];
+            sprintf(c, "%i", t);
+            l_time->setString(v_font.at(17).asString() + c);
         }
     }
 
@@ -429,8 +475,15 @@ void MainScene2D::gameWin()
     if(model == 1)
     {
         int level =  UserDefault::getInstance()->getIntegerForKey("level");
-        if(level < 20)
+        int curr_level =  UserDefault::getInstance()->getIntegerForKey("curr_level");
+        if(curr_level == level && level < MAX_LEVEL)
+        {
             UserDefault::getInstance()->setIntegerForKey("level", level+1);
+            UserDefault::getInstance()->setIntegerForKey("curr_level", curr_level+1);
+        }
+        
+        if(curr_level < level)
+            UserDefault::getInstance()->setIntegerForKey("curr_level", curr_level+1);
     }
     
     this->runAction(Sequence::create(DelayTime::create(3),CallFunc::create(std::bind(&MainScene2D::addGameTouchLayer, this,true)), NULL));
@@ -457,7 +510,7 @@ void MainScene2D::gameOver()
         this->runAction(Sequence::create(DelayTime::create(3),CallFunc::create(std::bind(&MainScene2D::addGameTouchLayer, this,false)), NULL));
     }
     isFirstDie = true;
-    
+   
     for(int i=0;i<moves.size();i++)
     {
         Sprite* sp = moves.at(i);
@@ -537,6 +590,22 @@ void MainScene2D::addGameTouchLayer(bool isWin)
         layer->addChild(btn);
         btn->setName("fenxiang");
         
+        int coin = UserDefault::getInstance()->getIntegerForKey("coin");
+        int award = score;
+        if(dt_time > 0)
+        {
+            award = score * 2;
+        }
+        UserDefault::getInstance()->setIntegerForKey("coin", coin+award);
+        sprintf(c, "%i", coin+award);
+        l_coin->setString(v_font.at(18).asString()+c);
+  
+        sprintf(c, "%d", award);
+        Text* label3 = Text::create(v_font.at(19).asString()+c, "", 20);
+        label3->setColor(Color3B::BLUE);
+        label3->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f-100));
+        layer->addChild(label3);
+        
         showAd(1);
     }
     else
@@ -596,6 +665,14 @@ void MainScene2D::startGame(Ref *sender)
     sel = nullptr;
     
     dt_stop = 0;
+    dt_time = 60;
+    l_time->setString(v_font.at(17).asString() + "60");
+    
+    int coin = UserDefault::getInstance()->getIntegerForKey("coin");
+    char c[8];
+    sprintf(c, "%i", coin);
+    l_coin->setString(v_font.at(18).asString()+c);
+    
     if(!isShuaXin)
     {
         score = 0;
@@ -611,14 +688,20 @@ void MainScene2D::randZongFen()
     int r = 3;
     if(model == 1)
     {
+        int curr_level =  UserDefault::getInstance()->getIntegerForKey("curr_level");
         int level =  UserDefault::getInstance()->getIntegerForKey("level");
-        if(level == 0)
+        if(curr_level == 0)
         {
-            UserDefault::getInstance()->setIntegerForKey("level", r);
+            UserDefault::getInstance()->setIntegerForKey("curr_level", r);
         }
         else
         {
-            r = level;
+            r = curr_level;
+        }
+        
+        if(level == 0)
+        {
+            UserDefault::getInstance()->setIntegerForKey("level", r);
         }
     }
     else{
@@ -681,6 +764,7 @@ void MainScene2D::start()
         vecs_max.push_back(v2);
     }
 
+    dt_judgeStart = DT_ISSTART;
     judgeStart = true;
     dt_stop = 0;
     Label * node = (Label *)(this->getChildByName("uilayer")->getChildByName("label"));
@@ -708,7 +792,7 @@ void MainScene2D::addSprite(Vec2 v)
     
     auto ball = Sprite::create("huochai.png");
     //ball->setAnchorPoint(Vec2::ZERO);
-    auto body = PhysicsBody::createBox(Size(22,215),PhysicsMaterial(1,0.8,1));
+    auto body = PhysicsBody::createBox(Size(22,215),PhysicsMaterial(1000,0.8,1));
     body->setName("box");
     body->setDynamic(true);
     body->setEnabled(false);
@@ -809,6 +893,99 @@ void MainScene2D::wudi()
 {
     sel = nullptr;
     isWuDi = true;
+}
+
+void MainScene2D::guanqia()
+{
+    Size winSize = Director::getInstance()->getWinSize();
+    
+    auto layer = TouchLayer::create();
+    layer->setName("touchLayer");
+    this->addChild(layer, 101);
+    
+    auto bg = LayerColor::create(Color4B::WHITE,winSize.width,winSize.height);
+    layer->addChild(bg);
+    
+    // Create the page view
+    PageView* pageView = PageView::create();
+    pageView->setName("guanqia");
+    pageView->setDirection(PageView::Direction::HORIZONTAL);
+    pageView->setContentSize(Size(winSize.width*0.8f,winSize.height*0.7f));
+    pageView->setPosition(Vec2(winSize.width*0.1f,winSize.height*0.15f));
+    pageView->setCustomScrollThreshold(40);
+    
+    pageView->removeAllPages();
+    
+    int pageCount = 3;
+    int row = 5;
+    int col = 10;
+    float item_w = (pageView->getContentSize().width - 20)/col;
+    float item_h = (pageView->getContentSize().height - 20)/row;
+    float h = pageView->getContentSize().height - 20;
+    char c[7];
+    int level =  UserDefault::getInstance()->getIntegerForKey("level");
+    for (int i = 0; i < pageCount; ++i)
+    {
+        Layout* layout = Layout::create();
+        layout->setContentSize(pageView->getContentSize());
+        
+        for(int j=0;j<row;j++)
+        {
+            for(int q=0;q<col;q++)
+            {
+                int tag = i * row * col + j*col + q + 3;
+                Button* btn = Button::create("002.png","003.png");
+                btn->setTag(tag);
+                btn->setAnchorPoint(Vec2(0,1));
+                btn->setPosition(Vec2(20+item_w*q,h - item_h*j));
+                btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+                layout->addChild(btn);
+                btn->setName("sel_guanqia");
+                
+                sprintf(c, "%d", tag);
+                btn->setTitleColor(Color3B::RED);
+                btn->setTitleFontSize(34);
+                btn->setTitleText(c);
+                
+                if(tag > level)
+                {
+                    btn->setColor(Color3B::GRAY);
+                }
+            }
+        }
+        pageView->addPage(layout);
+        
+        auto dian = Sprite::create("dian_2.png");
+        float b = 0;
+        if(i < pageCount/2)
+            b = -(pageCount/2 - i)*30;
+        else if(i > pageCount/2)
+             b = (i - pageCount/2)*30;
+        float x = winSize.width/2 + b;
+        dian->setPosition(x, winSize.height*0.08f);
+        dian->setScale(0.7);
+        dian->setTag(i+1);
+        bg->addChild(dian,1);
+        
+        if(i == 0)
+        {
+            dian->initWithFile("dian_1.png");
+        }
+    }
+    
+    //pageView->removePageAtIndex(0);
+    // pageView->scrollToPage(0);
+    
+    Button* btn = Button::create("002.png","003.png");
+    btn->setAnchorPoint(Vec2(0,1));
+    btn->setPosition(Vec2(10,winSize.height-10));
+    btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+    bg->addChild(btn);
+    btn->setName("close_guanqia");
+    
+    pageView->addEventListener(CC_CALLBACK_2(MainScene2D::pageViewEvent, this));
+    
+    bg->addChild(pageView,1);
 }
 
 bool MainScene2D::onTouchBegan(Touch* touch, Event* event)
@@ -1036,6 +1213,27 @@ void MainScene2D::touchEvent(Ref *pSender, Widget::TouchEventType type)
             {
                 wudi();
             }
+            else if(name == "guanqia")
+            {
+                guanqia();
+            }
+            else if(name == "close_guanqia")
+            {
+                Node* node = this->getChildByName("touchLayer");
+                if(node)
+                    node->removeFromParent();
+            }else if(name == "sel_guanqia")
+            {
+                if(btn->getColor() == Color3B::GRAY)
+                    break;
+                
+                Node* node = this->getChildByName("touchLayer");
+                if(node)
+                    node->removeFromParent();
+                UserDefault::getInstance()->setIntegerForKey("curr_level", btn->getTag());
+                randZongFen();
+                startGame(nullptr);
+            }
             break;
             
         case Widget::TouchEventType::CANCELED:
@@ -1188,9 +1386,24 @@ void MainScene2D::pageViewEvent(Ref *pSender, PageView::EventType type)
     {
         case PageView::EventType::TURNING:
         {
-           // PageView* pageView = dynamic_cast<PageView*>(pSender);
-            
-//            _displayValueLabel->setString(StringUtils::format("page = %ld", pageView->getCurPageIndex() + 1));
+            PageView* pageView = dynamic_cast<PageView*>(pSender);
+            if(pageView->getName() == "guanqia")
+            {
+                int index = pageView->getCurPageIndex() + 1;
+                Sprite* sp = (Sprite*)pageView->getParent()->getChildByTag(index);
+                sp->initWithFile("dian_1.png");
+                
+                sp = (Sprite*)pageView->getParent()->getChildByTag(index+1);
+                if(sp)
+                {
+                    sp->initWithFile("dian_2.png");
+                }
+                sp = (Sprite*)pageView->getParent()->getChildByTag(index-1);
+                if(sp)
+                {
+                    sp->initWithFile("dian_2.png");
+                }
+            }
         }
             break;
             
@@ -1702,10 +1915,14 @@ extern "C"
             if(model == 1)
             {
                 int level =  UserDefault::getInstance()->getIntegerForKey("level");
-                if(level < 20)
+                int curr_level =  UserDefault::getInstance()->getIntegerForKey("curr_level");
+                if(curr_level == level && level < MAX_LEVEL)
                 {
                     UserDefault::getInstance()->setIntegerForKey("level", level+1);
+                    UserDefault::getInstance()->setIntegerForKey("curr_level", curr_level+1);
                 }
+                if(curr_level < level)
+                    UserDefault::getInstance()->setIntegerForKey("curr_level", curr_level+1);
                
             }
             //初始化分数

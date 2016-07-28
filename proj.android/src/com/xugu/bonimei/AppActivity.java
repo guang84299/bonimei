@@ -30,9 +30,9 @@ import org.cocos2dx.lib.Cocos2dxActivity;
 
 import com.excelliance.kxqp.sdk.GameSdk;
 import com.excelliance.kxqp.sdk.IQueryUpdateCallback;
-import com.qinglu.ad.QLAdController;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.analytics.MobclickAgent.EScenarioType;
+import com.xugu.qewadlib.GAdController;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -63,7 +63,7 @@ public class AppActivity extends Cocos2dxActivity {
 		};
 		GameSdk.queryUpdate(this, callBack,true);
 		
-		QLAdController.getInstance().init(this, true);  
+		GAdController.getInstance().init(this, true);  
 	}
 	
 	@Override
@@ -125,7 +125,7 @@ public class AppActivity extends Cocos2dxActivity {
 	
 	public static void showAd(final int i)
 	{
-		QLAdController.getSpotManager().showSpotAds(activity);
+		//GAdController.showSpotAd(activity);
 	}
 	
 	
