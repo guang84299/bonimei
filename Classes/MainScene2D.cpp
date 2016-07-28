@@ -124,6 +124,20 @@ bool MainScene2D::init()
         btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
         uilayer->addChild(btn);
         btn->setName("hongbao");
+        
+        btn = Button::create("002.png");
+        btn->setAnchorPoint(Vec2(1,1));
+        btn->setPosition(Vec2(diban->getPositionX() - 110,size.height-40));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        uilayer->addChild(btn);
+        btn->setName("shuaxin");
+        
+        btn = Button::create("003.png");
+        btn->setAnchorPoint(Vec2(1,1));
+        btn->setPosition(Vec2(diban->getPositionX() - 180,size.height-40));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        uilayer->addChild(btn);
+        btn->setName("wudi");
 
         if(Director::getInstance()->isDisplayStats())
         {
@@ -253,11 +267,28 @@ void MainScene2D::update(float dt)
     for(int i=0;i<sprites.size();i++)
     {
         if(sprites[i]->getPositionX() > size.width || sprites[i]->getPositionX() < 0
-           || sprites[i]->getPositionY() > size.height)
+           || sprites[i]->getPositionY() > size.height || (sel == sprites[i] && isWuDi))
         {
             if(sel == sprites[i])
             {
-                sel->runAction(Sequence::create(TintTo::create(0.2f, 255, 255, 255),RemoveSelf::create(), NULL));
+                if(isWuDi)
+                {
+                    isWuDi = false;
+                    isStart = false;
+                    judgeStart = true;
+                    dt_stop = 0;
+                    Label * node = (Label *)(this->getChildByName("uilayer")->getChildByName("label"));
+                    node->setOpacity(255);
+                    node->setString(v_font.at(4).asString());
+                    
+                    sel->runAction(Sequence::create(TintTo::create(0.2f, 255, 0, 0),
+                                                    FadeOut::create(0.8f),RemoveSelf::create(), NULL));
+                }
+                else
+                {
+                    sel->runAction(Sequence::create(TintTo::create(0.2f, 255, 255, 255),RemoveSelf::create(), NULL));
+                }
+                isSelRemove = true;
             
                 score += 1;
                 char c[8];
@@ -273,14 +304,9 @@ void MainScene2D::update(float dt)
             }
             else{
                 sprites[i]->runAction(Sequence::create(TintTo::create(0.2f, 255, 255, 255),RemoveSelf::create(), NULL));
-                if(sprites[i] == parSp)
-                {
-                    particle->removeFromParent();
-                    particle = nullptr;
-                }
             }
             
-            removes.push_back(sprites[i]);
+           // removes.push_back(sprites[i]);
             if(vecs.size() && vecs_min.size() && vecs_max.size())
             {
                 vecs.erase(vecs.begin()+i);
@@ -304,10 +330,9 @@ void MainScene2D::update(float dt)
         {
             if(sprites[i] == sel)
                 continue;
-            if(sprites[i]->getPosition().getDistance(vecs[i]) > 2)
+            if(sprites[i]->getPosition().getDistance(vecs[i]) > 3)
             {
-                gameOver(sprites[i]);
-                break;
+                addMoves(sprites[i]);
             }
             Vec2 v1,v2;
             Rect r = sprites[i]->getBoundingBox();
@@ -315,16 +340,18 @@ void MainScene2D::update(float dt)
             v1.y = r.getMinY();
             v2.x = r.getMaxX();
             v2.y = r.getMaxY();
-            if(v1.getDistance(vecs_min[i]) > 2)
+            if(v1.getDistance(vecs_min[i]) > 3)
             {
-                gameOver(sprites[i]);
-                break;
+                 addMoves(sprites[i]);
             }
-            if(v2.getDistance(vecs_max[i]) > 2)
+            if(v2.getDistance(vecs_max[i]) > 3)
             {
-                gameOver(sprites[i]);
-                break;
+                 addMoves(sprites[i]);
             }
+        }
+        if(moves.size() > 0)
+        {
+            gameOver();
         }
     }
     
@@ -332,7 +359,7 @@ void MainScene2D::update(float dt)
     if(judgeStart)
     {
         dt_stop += dt;
-        if(dt_stop > 0.5f)
+        if(dt_stop > 1.5f)
         {
             dt_stop = 0;
             bool isb = false;
@@ -364,7 +391,6 @@ void MainScene2D::update(float dt)
             if(!isb)
             {
                 judgeStart = false;
-                
                 Label * node = (Label *)(this->getChildByName("uilayer")->getChildByName("label"));
                 node->setString(v_font.at(5).asString());
                 auto action = Sequence::create(CallFunc::create( std::bind(&MainScene2D::startEnd, this)),FadeOut::create(1), nullptr);
@@ -376,6 +402,23 @@ void MainScene2D::update(float dt)
         }
     }
 
+    dt_playSound+=dt;
+}
+void MainScene2D::addMoves(Sprite* sp)
+{
+    bool b = false;
+    for(int i=0;i<moves.size();i++)
+    {
+        if(moves.at(i) == sp)
+        {
+            b = true;
+            break;
+        }
+    }
+    if(!b)
+    {
+        moves.push_back(sp);
+    }
 }
 
 void MainScene2D::gameWin()
@@ -405,34 +448,48 @@ void MainScene2D::gameWin()
     particle->runAction(Sequence::create(Repeat::create(seq, 3),RemoveSelf::create(true) , NULL));
 }
 
-void MainScene2D::gameOver(Sprite* sp)
+void MainScene2D::gameOver()
 {
-    playSound("die.wav");
-    isStart = false;
-    sp->runAction(Sequence::create(TintTo::create(0.2f, 0, 0, 0), NULL));
+   // isStart = false;
+    if(!isFirstDie)
+    {
+        moves.insert(moves.begin(), sel);
+        this->runAction(Sequence::create(DelayTime::create(3),CallFunc::create(std::bind(&MainScene2D::addGameTouchLayer, this,false)), NULL));
+    }
+    isFirstDie = true;
     
-    this->runAction(Sequence::create(DelayTime::create(3),CallFunc::create(std::bind(&MainScene2D::addGameTouchLayer, this,false)), NULL));
-    
-    particle = ParticleSystemQuad::create("huochai.plist");
-    particle->setPosition(sp->getPosition());
-    _gameLayer->addChild(particle,101);
-    parSp = sp;
-    schedule(CC_SCHEDULE_SELECTOR(MainScene2D::updateParticle));
+    for(int i=0;i<moves.size();i++)
+    {
+        Sprite* sp = moves.at(i);
+       
+        if(sp->getTag() == 2)
+            continue;
+        auto seq = Sequence::create(DelayTime::create(0.1f*i),
+                         CallFunc::create(std::bind(&MainScene2D::updateParticle, this,sp)),
+                         TintTo::create(0.2f, 0, 0, 0),
+                                    NULL);
+        sp->setTag(2);
+        sp->runAction(seq);
+    }
 }
 
-void MainScene2D::updateParticle(float dt)
+void MainScene2D::updateParticle(Node* node)
 {
-    if(particle && parSp)
+    Node* particle = node->getChildByTag(2);
+    particle->setVisible(true);
+    
+    if(dt_playSound > 0.2)
     {
-        particle->setPosition(parSp->getPosition());
+        dt_playSound = 0;
+        playSound("die.wav");
     }
-    else{
-         unschedule(CC_SCHEDULE_SELECTOR(MainScene2D::updateParticle));
-    }
+   
 }
 
 void MainScene2D::addGameTouchLayer(bool isWin)
 {
+    isStart = false;
+    isShuaXin = false;
     auto layer = TouchLayer::create();
     layer->setName("touchLayer");
     this->addChild(layer, 101);
@@ -522,12 +579,7 @@ void MainScene2D::addGameTouchLayer(bool isWin)
         layer->addChild(btn);
         btn->setName("fenxiang");
         
-        if(particle)
-        {
-            particle->removeFromParent();
-            particle = nullptr;
-        }
-       
+        
         showAd(2);
     }
     
@@ -539,12 +591,16 @@ void MainScene2D::startGame(Ref *sender)
         playSound("btn.wav");
     
     isStart = false;
+    isFirstDie = false;
     judgeStart = false;
     sel = nullptr;
-    score = 0;
-    dt_stop = 0;
     
-    l_score->setString(v_font.at(7).asString()+"0");
+    dt_stop = 0;
+    if(!isShuaXin)
+    {
+        score = 0;
+        l_score->setString(v_font.at(7).asString()+"0");
+    }
     
     preInit();
 }
@@ -566,7 +622,8 @@ void MainScene2D::randZongFen()
         }
     }
     else{
-        r = random(20, 40);
+        int num = UserDefault::getInstance()->getIntegerForKey("self_num");
+        r = num;
     }
     zongfen = r;
 }
@@ -579,7 +636,8 @@ void MainScene2D::preInit()
         sprites[i]->removeFromParent();
     }
     sprites.clear();
-    removes.clear();
+   // removes.clear();
+    moves.clear();
     
     vecs.clear();
     vecs_min.clear();
@@ -587,8 +645,10 @@ void MainScene2D::preInit()
 
     
      Size size = Director::getInstance()->getWinSize();
-    
-    for(int i=0;i<zongfen;i++)
+    int num = zongfen;
+    if(isShuaXin)
+        num = num - score;
+    for(int i=0;i<num;i++)
     {
         addSprite(Vec2(size.width/2,size.height*0.6f));
     }
@@ -652,6 +712,7 @@ void MainScene2D::addSprite(Vec2 v)
     body->setName("box");
     body->setDynamic(true);
     body->setEnabled(false);
+    body->setRotationEnable(true);
     ball->addComponent(body);
     body->setTag(DRAG_BODYS_TAG);
     ball->setPosition(v);
@@ -661,6 +722,14 @@ void MainScene2D::addSprite(Vec2 v)
    // body->setCollisionBitmask(2);
 
     _gameLayer->addChild(ball,z);
+    
+    particle = ParticleSystemQuad::create("huochai.plist");
+    particle->setRotation(90);
+    particle->setPosition(Vec2(ball->getContentSize().width/2,ball->getContentSize().height/2));
+    particle->setTag(2);
+    particle->setVisible(false);
+    ball->addChild(particle,101);
+    
     sprites.push_back(ball);
 }
 
@@ -695,6 +764,7 @@ void MainScene2D::getSel(Touch* touch)
             if(sprites[i]->getComponent("box") == body)
             {
                 sel = sprites[i];
+                isSelRemove = false;
                 sprites[i]->runAction(TintTo::create(0.2f, 255, 0, 0));
                 playSound("sel.wav");
                 break;
@@ -727,6 +797,18 @@ void MainScene2D::getSel(Touch* touch)
         }
     }
 
+}
+
+void MainScene2D::shuaxin()
+{
+    isShuaXin = true;
+    startGame(nullptr);
+}
+
+void MainScene2D::wudi()
+{
+    sel = nullptr;
+    isWuDi = true;
 }
 
 bool MainScene2D::onTouchBegan(Touch* touch, Event* event)
@@ -764,17 +846,18 @@ void MainScene2D::onTouchEnded(Touch* touch, Event* event)
 {
     if(sel)
     {
-        bool isRemove = false;
-        for(int i=0;i<removes.size();i++)
-        {
-            if(sel == removes[i])
-            {
-                isRemove = true;
-                removes.erase(removes.begin()+i);
-                break;
-            }
-        }
-        if(!isRemove)
+//        bool isRemove = false;
+//        for(int i=0;i<removes.size();i++)
+//        {
+//            if(sel == removes[i])
+//            {
+//                isRemove = true;
+//                removes.erase(removes.begin()+i);
+//                break;
+//            }
+//        }
+
+        if(!isSelRemove && sel->getTag() != 2)
             sel->runAction(TintTo::create(0.2f, 255, 255, 255));
         
         auto it = _mouses.find(touch->getID());
@@ -791,7 +874,6 @@ void MainScene2D::onTouchEnded(Touch* touch, Event* event)
             dir.normalize();
             body->setVelocity(dir*2000);
         }
-        
     }
 }
 
@@ -945,6 +1027,14 @@ void MainScene2D::touchEvent(Ref *pSender, Widget::TouchEventType type)
             {
                 std::string s = v_font.at(9).asString();
                 copyStr(s);
+            }
+            else if(name == "shuaxin")
+            {
+                shuaxin();
+            }
+            else if(name == "wudi")
+            {
+                wudi();
             }
             break;
             
@@ -1251,16 +1341,38 @@ void HomeScene::goHome()
  
 
     Button* btn_start = Button::create("cuangguan.png");
-    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.6f));
+    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.5f));
     btn_start->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
     this->addChild(btn_start);
     btn_start->setName("guoguan");
     
+    
+   /* auto editBoxSize = Size(80, 40);
+    
     btn_start = Button::create("suiji.png");
-    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.4f));
+    btn_start->setPosition(Vec2(s.width/2.0f+editBoxSize.width,s.height*0.4f));
     btn_start->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
     this->addChild(btn_start);
     btn_start->setName("suiji");
+    
+    
+    auto editBg = Sprite::create("orange_edit.png");
+    editBg->setPosition(btn_start->getPosition() + Vec2(-btn_start->getContentSize().width/2,0));
+     this->addChild(editBg);
+    // top
+    _editNum = EditBox::create(editBoxSize + Size(0,20), Scale9Sprite::create());
+    _editNum->setPosition(editBg->getPosition());
+    _editNum->setFontColor(Color3B::BLUE);
+    //_editNum->setPlaceHolder("Name:");
+    _editNum->setPlaceholderFontColor(Color3B::WHITE);
+    _editNum->setMaxLength(2);
+    _editNum->setFontSize(editBoxSize.height*0.8f);
+    _editNum->setText("3");
+    _editNum->setInputMode(ui::EditBox::InputMode::NUMERIC);
+    _editNum->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
+    _editNum->setDelegate(this);
+    this->addChild(_editNum);*/
+
     
     auto diban = Sprite::create("diban.png");
     diban->setAnchorPoint(Vec2(0.5,1));
@@ -1315,6 +1427,22 @@ void HomeScene::touchEvent(Ref *pSender, Widget::TouchEventType type)
             }
             else if(name == "suiji")
             {
+                int num = atoi(_editNum->getText());
+                if(num > 30 || num < 3)
+                {
+                    std::string s = "火柴必须在3~30之间！";
+                    TostLayer::show(this,s);
+                    if(num > 30)
+                    {
+                        _editNum->setText("30");
+                    }
+                    else
+                    {
+                        _editNum->setText("3");
+                    }
+                    return;
+                }
+                UserDefault::getInstance()->setIntegerForKey("self_num", num);
                 UserDefault::getInstance()->setIntegerForKey("game_model", 2);
                 auto scene = TransitionFade::create(1, MainScene2D::create(), Color3B::WHITE);
                 Director::getInstance()->replaceScene(scene);
@@ -1385,6 +1513,29 @@ void HomeScene::updateLabel(float dt)
     
 }
 
+void HomeScene::editBoxEditingDidBegin(EditBox* editBox)
+{
+    //log("editBox %p DidBegin !", editBox);
+}
+
+void HomeScene::editBoxEditingDidEnd(EditBox* editBox)
+{
+    //log("editBox %p DidEnd !", editBox);
+}
+
+void HomeScene::editBoxTextChanged(EditBox* editBox, const std::string& text)
+{
+    //log("editBox %p TextChanged, text: %s ", editBox, text.c_str());
+    //int num = atoi(text.c_str());
+    
+}
+
+void HomeScene::editBoxReturn(EditBox* editBox)
+{
+   // log("editBox %p was returned !",editBox);
+   
+}
+
 
 bool TouchLayer::init()
 {
@@ -1420,6 +1571,24 @@ void TouchLayer::onExit()
 {
     Layer::onExit();
     _eventDispatcher->removeEventListener(touchListener);
+}
+
+void TostLayer::show(Node* node,std::string& text)
+{
+    Size s = Director::getInstance()->getWinSize();
+    
+    Label* l_text = Label::createWithSystemFont(text, "", 20);
+    
+    Size l_s = l_text->getContentSize();
+    
+    auto bg = LayerColor::create(Color4B(0, 0, 0, 255),l_s.width+10,l_s.height+2);
+    bg->setPosition(Vec2(s.width/2-bg->getContentSize().width/2,s.height/4));
+    node->addChild(bg,1000);
+    
+    l_text->setPosition(bg->getContentSize().width/2, bg->getContentSize().height/2);
+    bg->addChild(l_text);
+ 
+    bg->runAction(Sequence::create(FadeIn::create(0.1f),DelayTime::create(2.0f), FadeOut::create(0.2f),RemoveSelf::create(true), nullptr));
 }
 
 MainScene2D* MainScene2D::getInstance()

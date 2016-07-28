@@ -51,11 +51,11 @@
 	<key>sourcePositionVariancey</key>
 	<real>0</real>
 	<key>sourcePositionx</key>
-	<real>356.894</real>
+	<integer>0</integer>
 	<key>sourcePositiony</key>
-	<real>95.34099999999999</real>
+	<integer>0</integer>
 	<key>speed</key>
-	<real>0</real>
+	<integer>0</integer>
 	<key>speedVariance</key>
 	<real>0</real>
 	<key>startColorAlpha</key>

@@ -49,7 +49,7 @@ public:
     bool onContactBegin(PhysicsContact& contact);
     void toggleDebug(Ref* sender);
     void startGame(Ref* sender);
-    void gameOver(Sprite* sp);
+    void gameOver();
     void gameWin();
     void randZongFen();
     
@@ -61,27 +61,35 @@ public:
     void stopMusic();
     void resumeMusic();
     
-    void updateParticle(float dt);
+    void updateParticle(Node* node);
     
     void createPages();
     void pageViewEvent(Ref *pSender, PageView::EventType type);
     
     void createHongBao();
     
+    void addMoves(Sprite* sp);
+    
+    void shuaxin();
+    void wudi();
 protected:
     Layer* _gameLayer;
     bool _debugDraw;
     bool judgeStart = false;
     bool isStart = false;
+    bool isFirstDie = false;
+    bool isShuaXin = false;
+    bool isWuDi = false;
+    bool isSelRemove = false;
     std::unordered_map<int, Node*> _mouses;
     std::vector<Sprite*> sprites;
-    std::vector<Sprite*> removes;
+    //std::vector<Sprite*> removes;
+    std::vector<Sprite*> moves;
     std::vector<Vec2> vecs;
     std::vector<Vec2> vecs_min;
     std::vector<Vec2> vecs_max;
     Sprite* hand;
     Sprite* sel;
-    Sprite* parSp;
     PhysicsBody* top;
     ParticleSystemQuad* particle;
     
@@ -89,16 +97,23 @@ protected:
     int zongfen;
     Label* l_score;
     float dt_stop = 0;
+    float dt_playSound = 0;
     Vec2 lastDir;
     ValueVector v_font;
 };
 
-class HomeScene : public Scene
+class HomeScene : public Scene, public EditBoxDelegate
 {
 public:
      virtual bool init() override;
     void goHome();
     void touchEvent(Ref *pSender, Widget::TouchEventType type);
+    
+    virtual void editBoxEditingDidBegin(EditBox* editBox)override;
+    virtual void editBoxEditingDidEnd(EditBox* editBox)override;
+    virtual void editBoxTextChanged(EditBox* editBox, const std::string& text)override;
+    virtual void editBoxReturn(EditBox* editBox)override;
+    
     CREATE_FUNC(HomeScene);
     
     
@@ -109,6 +124,7 @@ public:
 private:
     int _num;
     cocos2d::Label *label_text;
+    EditBox* _editNum;
 };
 
 class TouchLayer : public Layer
@@ -124,6 +140,15 @@ public:
 private:
     
     EventListenerTouchOneByOne* touchListener;
+    
+};
+
+class TostLayer
+{
+public:
+     static void show(Node* node,std::string& text);
+    
+private:
     
 };
 
