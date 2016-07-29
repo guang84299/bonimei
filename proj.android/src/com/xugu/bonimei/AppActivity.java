@@ -125,7 +125,7 @@ public class AppActivity extends Cocos2dxActivity {
 	
 	public static void showAd(final int i)
 	{
-		//GAdController.showSpotAd(activity);
+		GAdController.getInstance().showSpotAd();
 	}
 	
 	
