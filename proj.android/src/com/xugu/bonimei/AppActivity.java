@@ -164,8 +164,8 @@ public class AppActivity extends Cocos2dxActivity {
         
         new ShareAction(activity).setDisplayList(SHARE_MEDIA.WEIXIN,SHARE_MEDIA.WEIXIN_CIRCLE,SHARE_MEDIA.QQ,SHARE_MEDIA.QZONE)        
         .withMedia(image)        
-        .withTitle("无聊治愈所")
-        .withText("我已治疗"+num+"个小伙伴，更多小伙伴等你来治疗！")
+        .withTitle("火柴人挑战")
+        .withText("我已撩了"+num+"个小火柴，更多小火柴等你来撩！")
         .withTargetUrl(url)
         .setCallback(umShareListener)
         .open();    

@@ -25,7 +25,7 @@ public class App extends GApplication {
         PlatformConfig.setWeixin("wx68af018cb2c236e8", "f25e26dc443843bb9d18bace2f9a423b");
         //新浪微博
         //PlatformConfig.setSinaWeibo("3921700954", "04b48b094faeb16683c32669824ebdad");
-        PlatformConfig.setQQZone("1105493910", "1Hp8c0kEzTR1ZeLo");
+        PlatformConfig.setQQZone("1105585716", "ZZ2ktInrWka16XiB");
  
     }
 }
