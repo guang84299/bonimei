@@ -20,6 +20,9 @@
 using namespace CocosDenshion;
 
 #define DRAG_BODYS_TAG 1
+#define MAX_LEVEL 20
+#define DT_ISSTART 0.2
+
 
 static MainScene2D* _instance = nullptr;
 bool MainScene2D::init()
@@ -57,13 +60,13 @@ bool MainScene2D::init()
         this->addChild(bottom);
         
         auto qq = Sprite::create("qq.png");
-        qq->setPosition(mx(240), 315);
-        qq->setScale(0.6);
+        qq->setPosition(250, 335);
+        qq->setScale(0.7);
         this->addChild(qq);
         
         auto qq2 = Sprite::create("qq1.png");
-        qq2->setPosition(mx(940), 315);
-        qq2->setScale(0.6);
+        qq2->setPosition(size.width-250, 335);
+        qq2->setScale(0.7);
         this->addChild(qq2);
         
         auto uilayer = Layer::create();
@@ -110,6 +113,17 @@ bool MainScene2D::init()
         
         diban = Sprite::create("diban.png");
         diban->setAnchorPoint(Vec2(0,1));
+        diban->setPosition(300,size.height);
+        uilayer->addChild(diban);
+        btn = Button::create("btn_guanqia.png");
+        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        diban->addChild(btn);
+        btn->setName("guanqia");
+        
+        
+        diban = Sprite::create("diban.png");
+        diban->setAnchorPoint(Vec2(0,1));
         diban->setPosition(size.width*0.9f,size.height);
         uilayer->addChild(diban);
         btn = Button::create("help.png");
@@ -120,10 +134,48 @@ bool MainScene2D::init()
         
         btn = Button::create("hongbao.png");
         btn->setAnchorPoint(Vec2(1,1));
-        btn->setPosition(Vec2(diban->getPositionX() - 10,size.height));
+        btn->setPosition(Vec2(diban->getPositionX()+5 ,size.height));
         btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
         uilayer->addChild(btn);
         btn->setName("hongbao");
+        
+        btn = Button::create("suaxin.png");
+        btn->setAnchorPoint(Vec2(1,1));
+        btn->setPosition(Vec2(diban->getPositionX() - 100,size.height-10));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        uilayer->addChild(btn);
+        btn->setName("shuaxin");
+        
+        int suaxin_num = UserDefault::getInstance()->getIntegerForKey("suaxin_num");
+        char c[7];
+        sprintf(c, "%d", suaxin_num);
+        auto num_bg = Sprite::create("dian_1.png");
+        num_bg->setAnchorPoint(Vec2(1,0));
+        num_bg->setPosition(btn->getContentSize().width-2, 2);
+        btn->addChild(num_bg);
+        l_suaxin = Label::createWithSystemFont(c, "", 24);
+        l_suaxin->setColor(Color3B::BLUE);
+        l_suaxin->setPosition(num_bg->getContentSize().width/2, num_bg->getContentSize().height/2);
+        num_bg->addChild(l_suaxin);
+  
+        
+        btn = Button::create("wudi.png");
+        btn->setAnchorPoint(Vec2(1,1));
+        btn->setPosition(Vec2(diban->getPositionX() - 180,size.height-10));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        uilayer->addChild(btn);
+        btn->setName("wudi");
+        
+        int wudi_num = UserDefault::getInstance()->getIntegerForKey("wudi_num");
+        sprintf(c, "%d", wudi_num);
+        num_bg = Sprite::create("dian_1.png");
+        num_bg->setAnchorPoint(Vec2(1,0));
+        num_bg->setPosition(btn->getContentSize().width-2, 2);
+        btn->addChild(num_bg);
+        l_wudi = Label::createWithSystemFont(c, "", 24);
+        l_wudi->setColor(Color3B::BLUE);
+        l_wudi->setPosition(num_bg->getContentSize().width/2, num_bg->getContentSize().height/2);
+        num_bg->addChild(l_wudi);
 
         if(Director::getInstance()->isDisplayStats())
         {
@@ -136,6 +188,11 @@ bool MainScene2D::init()
             menu->setPosition(Vec2(10, 500));
             uilayer->addChild(menu);
         }
+        
+        auto shetou = Sprite::create("shetou.png");
+        shetou->setAnchorPoint(Vec2(0.5,1));
+        shetou->setPosition(size.width/2, size.height);
+        uilayer->addChild(shetou);
         
         Label * label = Label::createWithSystemFont("", "", 38);
         label->setColor(Color3B::BLUE);
@@ -153,10 +210,21 @@ bool MainScene2D::init()
         
         l_score = Label::createWithSystemFont("", "", 28);
         l_score->setColor(Color3B::BLUE);
-        l_score->setAnchorPoint(Vec2(0.5,1));
-        l_score->setPosition(size.width/2, size.height-10);
-        uilayer->addChild(l_score,100);
+        l_score->setAnchorPoint(Vec2(0,0));
+        l_score->setPosition(124, 22);
+        shetou->addChild(l_score,100);
+        
+        l_time = Label::createWithSystemFont("", "", 24);
+        l_time->setColor(Color3B::BLUE);
+        l_time->setAnchorPoint(Vec2(0.5,1));
+        l_time->setPosition(size.width/2, size.height-120);
+        uilayer->addChild(l_time,100);
 
+        l_coin = Label::createWithSystemFont("", "", 28);
+        l_coin->setColor(Color3B::BLUE);
+        l_coin->setAnchorPoint(Vec2(0,0));
+        l_coin->setPosition(100, 55);
+        shetou->addChild(l_coin,100);
         
         _gameLayer = Layer::create();
         this->addChild(_gameLayer);
@@ -253,17 +321,35 @@ void MainScene2D::update(float dt)
     for(int i=0;i<sprites.size();i++)
     {
         if(sprites[i]->getPositionX() > size.width || sprites[i]->getPositionX() < 0
-           || sprites[i]->getPositionY() > size.height)
+           || sprites[i]->getPositionY() > size.height || (sel == sprites[i] && isWuDi))
         {
             if(sel == sprites[i])
             {
-                sel->runAction(Sequence::create(TintTo::create(0.2f, 255, 255, 255),RemoveSelf::create(), NULL));
+                if(isWuDi)
+                {
+                    isWuDi = false;
+                    isStart = false;
+                    judgeStart = true;
+                    dt_stop = 0;
+                    dt_judgeStart = 1.5f;
+                    Label * node = (Label *)(this->getChildByName("uilayer")->getChildByName("label"));
+                    node->setOpacity(255);
+                    node->setString(v_font.at(4).asString());
+                    
+                    sel->runAction(Sequence::create(TintTo::create(0.2f, 255, 0, 0),
+                                                    FadeOut::create(0.8f),RemoveSelf::create(), NULL));
+                }
+                else
+                {
+                    sel->runAction(Sequence::create(TintTo::create(0.2f, 255, 255, 255),RemoveSelf::create(), NULL));
+                }
+                isSelRemove = true;
             
                 score += 1;
                 char c[8];
                 sprintf(c, "%i", score);
-                std::string s = v_font.at(7).asString()+c;
-                l_score->setString(s);
+               // std::string s = v_font.at(7).asString()+c;
+                l_score->setString(c);
                 
                 int sco =  UserDefault::getInstance()->getIntegerForKey("score");
                 if(score > sco)
@@ -273,22 +359,27 @@ void MainScene2D::update(float dt)
             }
             else{
                 sprites[i]->runAction(Sequence::create(TintTo::create(0.2f, 255, 255, 255),RemoveSelf::create(), NULL));
-                if(sprites[i] == parSp)
-                {
-                    particle->removeFromParent();
-                    particle = nullptr;
-                }
             }
             
-            removes.push_back(sprites[i]);
+           // removes.push_back(sprites[i]);
             if(vecs.size() && vecs_min.size() && vecs_max.size())
             {
                 vecs.erase(vecs.begin()+i);
                 vecs_min.erase(vecs_min.begin()+i);
                 vecs_max.erase(vecs_max.begin()+i);
             }
+            
+            for(int j=0;j<moves.size();j++)
+            {
+                if(moves[j] == sprites[i])
+                {
+                    moves.erase(moves.begin()+j);
+                    break;
+                }
+            }
+            
             sprites.erase(sprites.begin()+i);
-
+            
             if(sprites.size() == 0)
             {
                 gameWin();
@@ -304,10 +395,9 @@ void MainScene2D::update(float dt)
         {
             if(sprites[i] == sel)
                 continue;
-            if(sprites[i]->getPosition().getDistance(vecs[i]) > 2)
+            if(sprites[i]->getPosition().getDistance(vecs[i]) > 3)
             {
-                gameOver(sprites[i]);
-                break;
+                addMoves(sprites[i]);
             }
             Vec2 v1,v2;
             Rect r = sprites[i]->getBoundingBox();
@@ -315,24 +405,26 @@ void MainScene2D::update(float dt)
             v1.y = r.getMinY();
             v2.x = r.getMaxX();
             v2.y = r.getMaxY();
-            if(v1.getDistance(vecs_min[i]) > 2)
+            if(v1.getDistance(vecs_min[i]) > 3)
             {
-                gameOver(sprites[i]);
-                break;
+                 addMoves(sprites[i]);
             }
-            if(v2.getDistance(vecs_max[i]) > 2)
+            if(v2.getDistance(vecs_max[i]) > 3)
             {
-                gameOver(sprites[i]);
-                break;
+                 addMoves(sprites[i]);
             }
+        }
+        if(moves.size() > 0)
+        {
+            gameOver();
         }
     }
     
     
     if(judgeStart)
-    {
+    {        
         dt_stop += dt;
-        if(dt_stop > 0.5f)
+        if(dt_stop > dt_judgeStart)
         {
             dt_stop = 0;
             bool isb = false;
@@ -363,8 +455,8 @@ void MainScene2D::update(float dt)
             }
             if(!isb)
             {
+                dt_judgeStart = DT_ISSTART;
                 judgeStart = false;
-                
                 Label * node = (Label *)(this->getChildByName("uilayer")->getChildByName("label"));
                 node->setString(v_font.at(5).asString());
                 auto action = Sequence::create(CallFunc::create( std::bind(&MainScene2D::startEnd, this)),FadeOut::create(1), nullptr);
@@ -375,21 +467,43 @@ void MainScene2D::update(float dt)
             }
         }
     }
+    
+    if(isStart)
+    {
+        dt_time -= dt;
+        int t = dt_time;
+        if(t >= 0)
+        {
+            char c[8];
+            sprintf(c, "%i", t);
+            l_time->setString(v_font.at(17).asString() + c);
+        }
+    }
 
+    dt_playSound+=dt;
+}
+void MainScene2D::addMoves(Sprite* sp)
+{
+    bool b = false;
+    for(int i=0;i<moves.size();i++)
+    {
+        if(moves.at(i) == sp)
+        {
+            b = true;
+            break;
+        }
+    }
+    if(!b)
+    {
+        moves.push_back(sp);
+    }
 }
 
 void MainScene2D::gameWin()
 {
     isStart = false;
   
-    int model = UserDefault::getInstance()->getIntegerForKey("game_model");
-    if(model == 1)
-    {
-        int level =  UserDefault::getInstance()->getIntegerForKey("level");
-        if(level < 20)
-            UserDefault::getInstance()->setIntegerForKey("level", level+1);
-    }
-    
+
     this->runAction(Sequence::create(DelayTime::create(3),CallFunc::create(std::bind(&MainScene2D::addGameTouchLayer, this,true)), NULL));
     
     Size size = Director::getInstance()->getWinSize();
@@ -405,42 +519,74 @@ void MainScene2D::gameWin()
     particle->runAction(Sequence::create(Repeat::create(seq, 3),RemoveSelf::create(true) , NULL));
 }
 
-void MainScene2D::gameOver(Sprite* sp)
+void MainScene2D::gameOver()
 {
-    playSound("die.wav");
-    isStart = false;
-    sp->runAction(Sequence::create(TintTo::create(0.2f, 0, 0, 0), NULL));
-    
-    this->runAction(Sequence::create(DelayTime::create(3),CallFunc::create(std::bind(&MainScene2D::addGameTouchLayer, this,false)), NULL));
-    
-    particle = ParticleSystemQuad::create("huochai.plist");
-    particle->setPosition(sp->getPosition());
-    _gameLayer->addChild(particle,101);
-    parSp = sp;
-    schedule(CC_SCHEDULE_SELECTOR(MainScene2D::updateParticle));
+   // isStart = false;
+    if(!isFirstDie)
+    {
+        moves.insert(moves.begin(), sel);
+        this->runAction(Sequence::create(DelayTime::create(3),CallFunc::create(std::bind(&MainScene2D::addGameTouchLayer, this,false)), NULL));
+    }
+    isFirstDie = true;
+   
+    for(int i=0;i<moves.size();i++)
+    {
+        Sprite* sp = moves.at(i);
+       
+        if(sp->getTag() == 2)
+            continue;
+        auto seq = Sequence::create(DelayTime::create(0.1f*i),
+                         CallFunc::create(std::bind(&MainScene2D::updateParticle, this,sp)),
+                         TintTo::create(0.2f, 0, 0, 0),
+                                    NULL);
+        sp->setTag(2);
+        sp->runAction(seq);
+    }
 }
 
-void MainScene2D::updateParticle(float dt)
+void MainScene2D::updateParticle(Node* node)
 {
-    if(particle && parSp)
+    Node* particle = node->getChildByTag(2);
+    particle->setVisible(true);
+    
+    if(dt_playSound > 0.2)
     {
-        particle->setPosition(parSp->getPosition());
+        dt_playSound = 0;
+        playSound("die.wav");
     }
-    else{
-         unschedule(CC_SCHEDULE_SELECTOR(MainScene2D::updateParticle));
-    }
+   
 }
 
 void MainScene2D::addGameTouchLayer(bool isWin)
 {
+    isStart = false;
+    isShuaXin = false;
     auto layer = TouchLayer::create();
     layer->setName("touchLayer");
     this->addChild(layer, 101);
     
+    int curr_level =  UserDefault::getInstance()->getIntegerForKey("curr_level");
+    
     Size size = Director::getInstance()->getWinSize();
-    randZongFen();
+    
     if(isWin)
     {
+        int model = UserDefault::getInstance()->getIntegerForKey("game_model");
+        if(model == 1)
+        {
+            int level =  UserDefault::getInstance()->getIntegerForKey("level");
+            if(curr_level == level && level < MAX_LEVEL)
+            {
+                UserDefault::getInstance()->setIntegerForKey("level", level+1);
+                UserDefault::getInstance()->setIntegerForKey("curr_level", curr_level+1);
+            }
+            
+            if(curr_level < level)
+                UserDefault::getInstance()->setIntegerForKey("curr_level", curr_level+1);
+        }
+        
+        randZongFen();
+        
         std::string s = v_font.at(3).asString();
         Text* label = Text::create(s, "", 50);
         label->setColor(Color3B::WHITE);
@@ -480,10 +626,35 @@ void MainScene2D::addGameTouchLayer(bool isWin)
         layer->addChild(btn);
         btn->setName("fenxiang");
         
+        int coin = UserDefault::getInstance()->getIntegerForKey("coin");
+        int award = score;
+        
+        sprintf(c, "%i", curr_level);
+        std::string level_s = "level_";
+        level_s+=c;
+        
+        if(dt_time > 0 && !UserDefault::getInstance()->getBoolForKey(level_s.c_str()))
+        {
+            award = score * 2;
+            
+            UserDefault::getInstance()->setBoolForKey(level_s.c_str(),true);
+        }
+        UserDefault::getInstance()->setIntegerForKey("coin", coin+award);
+        sprintf(c, "%i", coin+award);
+        l_coin->setString(c);
+  
+        sprintf(c, "%d", award);
+        Text* label3 = Text::create(v_font.at(19).asString()+c, "", 20);
+        label3->setColor(Color3B::BLUE);
+        label3->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f-100));
+        layer->addChild(label3);
+        
         showAd(1);
     }
     else
     {
+        randZongFen();
+        
         std::string s = v_font.at(2).asString();
         Text* label = Text::create(s, "", 50);
         label->setColor(Color3B::WHITE);
@@ -522,12 +693,7 @@ void MainScene2D::addGameTouchLayer(bool isWin)
         layer->addChild(btn);
         btn->setName("fenxiang");
         
-        if(particle)
-        {
-            particle->removeFromParent();
-            particle = nullptr;
-        }
-       
+        
         showAd(2);
     }
     
@@ -539,12 +705,24 @@ void MainScene2D::startGame(Ref *sender)
         playSound("btn.wav");
     
     isStart = false;
+    isFirstDie = false;
     judgeStart = false;
     sel = nullptr;
-    score = 0;
-    dt_stop = 0;
     
-    l_score->setString(v_font.at(7).asString()+"0");
+    dt_stop = 0;
+    dt_time = 60;
+    l_time->setString(v_font.at(17).asString() + "60");
+    
+    int coin = UserDefault::getInstance()->getIntegerForKey("coin");
+    char c[8];
+    sprintf(c, "%i", coin);
+    l_coin->setString(c);
+    
+    if(!isShuaXin)
+    {
+        score = 0;
+        l_score->setString("0");
+    }
     
     preInit();
 }
@@ -555,18 +733,25 @@ void MainScene2D::randZongFen()
     int r = 3;
     if(model == 1)
     {
+        int curr_level =  UserDefault::getInstance()->getIntegerForKey("curr_level");
         int level =  UserDefault::getInstance()->getIntegerForKey("level");
+        if(curr_level == 0)
+        {
+            UserDefault::getInstance()->setIntegerForKey("curr_level", r);
+        }
+        else
+        {
+            r = curr_level;
+        }
+        
         if(level == 0)
         {
             UserDefault::getInstance()->setIntegerForKey("level", r);
         }
-        else
-        {
-            r = level;
-        }
     }
     else{
-        r = random(20, 40);
+        int num = UserDefault::getInstance()->getIntegerForKey("self_num");
+        r = num;
     }
     zongfen = r;
 }
@@ -579,7 +764,8 @@ void MainScene2D::preInit()
         sprites[i]->removeFromParent();
     }
     sprites.clear();
-    removes.clear();
+   // removes.clear();
+    moves.clear();
     
     vecs.clear();
     vecs_min.clear();
@@ -587,8 +773,10 @@ void MainScene2D::preInit()
 
     
      Size size = Director::getInstance()->getWinSize();
-    
-    for(int i=0;i<zongfen;i++)
+    int num = zongfen;
+    if(isShuaXin)
+        num = num - score;
+    for(int i=0;i<num;i++)
     {
         addSprite(Vec2(size.width/2,size.height*0.6f));
     }
@@ -621,6 +809,7 @@ void MainScene2D::start()
         vecs_max.push_back(v2);
     }
 
+    dt_judgeStart = DT_ISSTART;
     judgeStart = true;
     dt_stop = 0;
     Label * node = (Label *)(this->getChildByName("uilayer")->getChildByName("label"));
@@ -652,6 +841,7 @@ void MainScene2D::addSprite(Vec2 v)
     body->setName("box");
     body->setDynamic(true);
     body->setEnabled(false);
+    body->setRotationEnable(true);
     ball->addComponent(body);
     body->setTag(DRAG_BODYS_TAG);
     ball->setPosition(v);
@@ -661,6 +851,14 @@ void MainScene2D::addSprite(Vec2 v)
    // body->setCollisionBitmask(2);
 
     _gameLayer->addChild(ball,z);
+    
+    particle = ParticleSystemQuad::create("huochai.plist");
+    particle->setRotation(90);
+    particle->setPosition(Vec2(ball->getContentSize().width/2,ball->getContentSize().height/2));
+    particle->setTag(2);
+    particle->setVisible(false);
+    ball->addChild(particle,101);
+    
     sprites.push_back(ball);
 }
 
@@ -695,6 +893,7 @@ void MainScene2D::getSel(Touch* touch)
             if(sprites[i]->getComponent("box") == body)
             {
                 sel = sprites[i];
+                isSelRemove = false;
                 sprites[i]->runAction(TintTo::create(0.2f, 255, 0, 0));
                 playSound("sel.wav");
                 break;
@@ -727,6 +926,239 @@ void MainScene2D::getSel(Touch* touch)
         }
     }
 
+}
+
+void MainScene2D::duihuanResult(int type)
+{
+    int coin = UserDefault::getInstance()->getIntegerForKey("coin");
+    std::string s = v_font.at(23).asString();
+    if(coin < 100)
+    {
+        s = v_font.at(24).asString();
+        TostLayer::show(this, s);
+        return;
+    }
+    else
+    {
+         char c[7];
+        if(type == 1)
+        {
+            int suaxin_num = UserDefault::getInstance()->getIntegerForKey("suaxin_num");
+            UserDefault::getInstance()->setIntegerForKey("suaxin_num",suaxin_num+1);
+            sprintf(c, "%d", suaxin_num+1);
+            l_suaxin->setString(c);
+        }
+        else{
+            int wudi_num = UserDefault::getInstance()->getIntegerForKey("wudi_num");
+            UserDefault::getInstance()->setIntegerForKey("wudi_num",wudi_num+1);
+            sprintf(c, "%d", wudi_num+1);
+            l_wudi->setString(c);
+        }
+        coin = coin - 100;
+        UserDefault::getInstance()->setIntegerForKey("coin",coin);
+        sprintf(c, "%d", coin);
+        l_coin->setString(c);
+        TostLayer::show(this, s);
+    }
+}
+
+void MainScene2D::duihuan(int type)
+{
+    Size winSize = Director::getInstance()->getWinSize();
+    
+    auto layer = TouchLayer::create();
+    layer->setName("touchLayer");
+    this->addChild(layer, 101);
+    
+    auto bg = LayerColor::create(Color4B(0,0,0,160),winSize.width,winSize.height);
+    layer->addChild(bg);
+    
+    auto bg2 = LayerColor::create(Color4B::WHITE,winSize.width/2,winSize.height/2);
+    bg2->setPosition(winSize.width/2/2, winSize.height/2/2);
+    layer->addChild(bg2);
+    
+    std::string s = v_font.at(20).asString();
+    if(type == 1)
+    {
+        s = v_font.at(21).asString();
+    }
+    Label* l = Label::createWithSystemFont(s, "", 24);
+    l->setColor(Color3B::RED);
+    l->setPosition(bg2->getContentSize().width/2, bg2->getContentSize().height/2+80);
+    bg2->addChild(l);
+
+    Button* duihuan = Button::create();
+    duihuan->setAnchorPoint(Vec2(0.5,0.5));
+    duihuan->setPosition(Vec2(bg2->getContentSize().width/2,80));
+    duihuan->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+    bg2->addChild(duihuan);
+    duihuan->setTag(type);
+    duihuan->setName("duihuan");
+    duihuan->setTitleColor(Color3B::RED);
+    duihuan->setTitleFontSize(34);
+    duihuan->setTitleText(v_font.at(22).asString());
+    
+    Button* btn = Button::create("002.png","003.png");
+    btn->setAnchorPoint(Vec2(0,1));
+    btn->setPosition(Vec2(10,winSize.height-10));
+    btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+    bg->addChild(btn);
+    btn->setName("close_duihuan");
+}
+
+void MainScene2D::shuaxin()
+{
+    int suaxin_num = UserDefault::getInstance()->getIntegerForKey("suaxin_num");
+    if(suaxin_num < 1)
+    {
+        duihuan(1);
+        return;
+    }
+    else
+    {
+        UserDefault::getInstance()->setIntegerForKey("suaxin_num",suaxin_num-1);
+        char c[7];
+        sprintf(c, "%d", suaxin_num-1);
+        l_suaxin->setString(c);
+    }
+    isShuaXin = true;
+    startGame(nullptr);
+}
+
+void MainScene2D::wudi()
+{
+    int wudi_num = UserDefault::getInstance()->getIntegerForKey("wudi_num");
+    if(wudi_num < 1)
+    {
+        duihuan(2);
+        return;
+    }
+    else
+    {
+        UserDefault::getInstance()->setIntegerForKey("wudi_num",wudi_num-1);
+        char c[7];
+        sprintf(c, "%d", wudi_num-1);
+        l_wudi->setString(c);
+    }
+    sel = nullptr;
+    isWuDi = true;
+}
+
+void MainScene2D::guanqia()
+{
+    Size winSize = Director::getInstance()->getWinSize();
+    
+    auto layer = TouchLayer::create();
+    layer->setName("touchLayer");
+    this->addChild(layer, 101);
+    
+    auto bg = LayerColor::create(Color4B(0,0,0,160),winSize.width,winSize.height);
+    layer->addChild(bg);
+    
+    auto sp = Sprite::create("guanqia_sel.png");
+    sp->setPosition(Vec2(winSize.width/2,winSize.height/2));
+    bg->addChild(sp);
+    
+    // Create the page view
+    PageView* pageView = PageView::create();
+    pageView->setName("guanqia");
+    pageView->setDirection(PageView::Direction::HORIZONTAL);
+    pageView->setContentSize(Size(836,430));
+    pageView->setPosition(Vec2(12,30));
+    pageView->setCustomScrollThreshold(40);
+    
+    pageView->removeAllPages();
+    
+    int pageCount = 3;
+    int row = 2;
+    int col = 6;
+    float item_w = (pageView->getContentSize().width - 20)/col;
+    float item_h = (pageView->getContentSize().height - 20)/row;
+    float h = pageView->getContentSize().height - 40;
+    char c[7];
+    int level =  UserDefault::getInstance()->getIntegerForKey("level");
+    for (int i = 0; i < pageCount; ++i)
+    {
+        Layout* layout = Layout::create();
+        layout->setContentSize(pageView->getContentSize());
+        
+        for(int j=0;j<row;j++)
+        {
+            for(int q=0;q<col;q++)
+            {
+                int tag = i * row * col + j*col + q + 3;
+                Button* btn = Button::create("guanqia_1.jpg");
+                btn->setTag(tag);
+                btn->setAnchorPoint(Vec2(0,1));
+                btn->setPosition(Vec2(26+item_w*q,h - item_h*j*0.8));
+                btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+                layout->addChild(btn);
+                btn->setName("sel_guanqia");
+                
+                sprintf(c, "%d", tag-2);
+                btn->setTitleColor(Color3B::RED);
+                btn->setTitleFontSize(34);
+                btn->setTitleText(c);
+                
+                if(tag > level)
+                {
+                    btn->loadTextureNormal("guanqia_2.jpg");
+                }
+                else
+                {
+                    sprintf(c, "%d", tag);
+                    std::string level_s = "level_";
+                    level_s+=c;
+                    
+                    auto pro = Sprite::create();
+                    if(UserDefault::getInstance()->getBoolForKey(level_s.c_str()))
+                    {
+                        pro->initWithFile("wanmei.png");
+                    }
+                    else
+                    {
+                         pro->initWithFile("putong.png");
+                    }
+                    pro->setAnchorPoint(Vec2(0.5,0));
+                    pro->setTag(1);
+                    pro->setPosition(btn->getContentSize().width/2, 6);
+                    btn->addChild(pro);
+                }
+            }
+        }
+        pageView->addPage(layout);
+        
+        auto dian = Sprite::create("dian_2.png");
+        float b = 0;
+        if(i < pageCount/2)
+            b = -(pageCount/2 - i)*50;
+        else if(i > pageCount/2)
+             b = (i - pageCount/2)*50;
+        float x = sp->getContentSize().width/2 + b;
+        dian->setPosition(x, winSize.height*0.08f);
+        //dian->setScale(0.7);
+        dian->setTag(i+1);
+        sp->addChild(dian,1);
+        
+        if(i == 0)
+        {
+            dian->initWithFile("dian_1.png");
+        }
+    }
+    
+    //pageView->removePageAtIndex(0);
+    // pageView->scrollToPage(0);
+    
+    Button* btn = Button::create("002.png","003.png");
+    btn->setAnchorPoint(Vec2(0,1));
+    btn->setPosition(Vec2(10,winSize.height-10));
+    btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+    bg->addChild(btn);
+    btn->setName("close_guanqia");
+    
+    pageView->addEventListener(CC_CALLBACK_2(MainScene2D::pageViewEvent, this));
+    
+    sp->addChild(pageView,1);
 }
 
 bool MainScene2D::onTouchBegan(Touch* touch, Event* event)
@@ -764,17 +1196,18 @@ void MainScene2D::onTouchEnded(Touch* touch, Event* event)
 {
     if(sel)
     {
-        bool isRemove = false;
-        for(int i=0;i<removes.size();i++)
-        {
-            if(sel == removes[i])
-            {
-                isRemove = true;
-                removes.erase(removes.begin()+i);
-                break;
-            }
-        }
-        if(!isRemove)
+//        bool isRemove = false;
+//        for(int i=0;i<removes.size();i++)
+//        {
+//            if(sel == removes[i])
+//            {
+//                isRemove = true;
+//                removes.erase(removes.begin()+i);
+//                break;
+//            }
+//        }
+
+        if(!isSelRemove && sel->getTag() != 2)
             sel->runAction(TintTo::create(0.2f, 255, 255, 255));
         
         auto it = _mouses.find(touch->getID());
@@ -791,7 +1224,6 @@ void MainScene2D::onTouchEnded(Touch* touch, Event* event)
             dir.normalize();
             body->setVelocity(dir*2000);
         }
-        
     }
 }
 
@@ -946,6 +1378,43 @@ void MainScene2D::touchEvent(Ref *pSender, Widget::TouchEventType type)
                 std::string s = v_font.at(9).asString();
                 copyStr(s);
             }
+            else if(name == "shuaxin")
+            {
+                shuaxin();
+            }
+            else if(name == "wudi")
+            {
+                wudi();
+            }
+            else if(name == "guanqia")
+            {
+                guanqia();
+            }
+            else if(name == "close_guanqia")
+            {
+                Node* node = this->getChildByName("touchLayer");
+                if(node)
+                    node->removeFromParent();
+            }else if(name == "sel_guanqia")
+            {
+                if(!btn->getChildByTag(1))
+                    break;
+                
+                Node* node = this->getChildByName("touchLayer");
+                if(node)
+                    node->removeFromParent();
+                UserDefault::getInstance()->setIntegerForKey("curr_level", btn->getTag());
+                randZongFen();
+                startGame(nullptr);
+            }else if(name == "close_duihuan")
+            {
+                Node* node = this->getChildByName("touchLayer");
+                if(node)
+                    node->removeFromParent();
+            }else if(name == "duihuan")
+            {
+                duihuanResult(btn->getTag());
+            }
             break;
             
         case Widget::TouchEventType::CANCELED:
@@ -1098,9 +1567,24 @@ void MainScene2D::pageViewEvent(Ref *pSender, PageView::EventType type)
     {
         case PageView::EventType::TURNING:
         {
-           // PageView* pageView = dynamic_cast<PageView*>(pSender);
-            
-//            _displayValueLabel->setString(StringUtils::format("page = %ld", pageView->getCurPageIndex() + 1));
+            PageView* pageView = dynamic_cast<PageView*>(pSender);
+            if(pageView->getName() == "guanqia")
+            {
+                int index = pageView->getCurPageIndex() + 1;
+                Sprite* sp = (Sprite*)pageView->getParent()->getChildByTag(index);
+                sp->initWithFile("dian_1.png");
+                
+                sp = (Sprite*)pageView->getParent()->getChildByTag(index+1);
+                if(sp)
+                {
+                    sp->initWithFile("dian_2.png");
+                }
+                sp = (Sprite*)pageView->getParent()->getChildByTag(index-1);
+                if(sp)
+                {
+                    sp->initWithFile("dian_2.png");
+                }
+            }
         }
             break;
             
@@ -1189,7 +1673,6 @@ bool HomeScene::init()
         goHome();
         return true;
     }
-    
     Size s = Director::getInstance()->getWinSize();
     
     auto layer = LayerColor::create(Color4B::WHITE);
@@ -1205,6 +1688,18 @@ bool HomeScene::init()
         UserDefault::getInstance()->setBoolForKey("music", true);
         UserDefault::getInstance()->setBoolForKey("sound", true);
         UserDefault::getInstance()->setBoolForKey("first", true);
+    }
+    int day = UserDefault::getInstance()->getIntegerForKey("day");
+    int curr_day = getcurrDay();
+    if(day != curr_day)
+    {
+        UserDefault::getInstance()->setIntegerForKey("day",curr_day);
+        int wudi_num = UserDefault::getInstance()->getIntegerForKey("wudi_num");
+        if(wudi_num < 2)
+            UserDefault::getInstance()->setIntegerForKey("wudi_num",2);
+        int suaxin_num = UserDefault::getInstance()->getIntegerForKey("suaxin_num");
+        if(suaxin_num < 2)
+            UserDefault::getInstance()->setIntegerForKey("suaxin_num",2);
     }
     
     if(FileUtils::getInstance()->isDirectoryExist("end"))
@@ -1251,16 +1746,38 @@ void HomeScene::goHome()
  
 
     Button* btn_start = Button::create("cuangguan.png");
-    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.6f));
+    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.5f));
     btn_start->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
     this->addChild(btn_start);
     btn_start->setName("guoguan");
     
+    
+   /* auto editBoxSize = Size(80, 40);
+    
     btn_start = Button::create("suiji.png");
-    btn_start->setPosition(Vec2(s.width/2.0f,s.height*0.4f));
+    btn_start->setPosition(Vec2(s.width/2.0f+editBoxSize.width,s.height*0.4f));
     btn_start->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
     this->addChild(btn_start);
     btn_start->setName("suiji");
+    
+    
+    auto editBg = Sprite::create("orange_edit.png");
+    editBg->setPosition(btn_start->getPosition() + Vec2(-btn_start->getContentSize().width/2,0));
+     this->addChild(editBg);
+    // top
+    _editNum = EditBox::create(editBoxSize + Size(0,20), Scale9Sprite::create());
+    _editNum->setPosition(editBg->getPosition());
+    _editNum->setFontColor(Color3B::BLUE);
+    //_editNum->setPlaceHolder("Name:");
+    _editNum->setPlaceholderFontColor(Color3B::WHITE);
+    _editNum->setMaxLength(2);
+    _editNum->setFontSize(editBoxSize.height*0.8f);
+    _editNum->setText("3");
+    _editNum->setInputMode(ui::EditBox::InputMode::NUMERIC);
+    _editNum->setReturnType(ui::EditBox::KeyboardReturnType::DONE);
+    _editNum->setDelegate(this);
+    this->addChild(_editNum);*/
+
     
     auto diban = Sprite::create("diban.png");
     diban->setAnchorPoint(Vec2(0.5,1));
@@ -1315,6 +1832,22 @@ void HomeScene::touchEvent(Ref *pSender, Widget::TouchEventType type)
             }
             else if(name == "suiji")
             {
+                int num = atoi(_editNum->getText());
+                if(num > 30 || num < 3)
+                {
+                    std::string s = "火柴必须在3~30之间！";
+                    TostLayer::show(this,s);
+                    if(num > 30)
+                    {
+                        _editNum->setText("30");
+                    }
+                    else
+                    {
+                        _editNum->setText("3");
+                    }
+                    return;
+                }
+                UserDefault::getInstance()->setIntegerForKey("self_num", num);
                 UserDefault::getInstance()->setIntegerForKey("game_model", 2);
                 auto scene = TransitionFade::create(1, MainScene2D::create(), Color3B::WHITE);
                 Director::getInstance()->replaceScene(scene);
@@ -1385,6 +1918,67 @@ void HomeScene::updateLabel(float dt)
     
 }
 
+void HomeScene::editBoxEditingDidBegin(EditBox* editBox)
+{
+    //log("editBox %p DidBegin !", editBox);
+}
+
+void HomeScene::editBoxEditingDidEnd(EditBox* editBox)
+{
+    //log("editBox %p DidEnd !", editBox);
+}
+
+void HomeScene::editBoxTextChanged(EditBox* editBox, const std::string& text)
+{
+    //log("editBox %p TextChanged, text: %s ", editBox, text.c_str());
+    //int num = atoi(text.c_str());
+    
+}
+
+void HomeScene::editBoxReturn(EditBox* editBox)
+{
+   // log("editBox %p was returned !",editBox);
+   
+}
+
+int HomeScene::getcurrDay()
+{
+    
+#if (CC_TARGET_PLATFORM == CC_PLATFORM_ANDROID || CC_TARGET_PLATFORM == CC_PLATFORM_IOS || CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
+    
+    struct timeval now;
+    struct tm* time;
+    
+    gettimeofday(&now, NULL);
+    
+    
+    time = localtime(&now.tv_sec);
+    //int year = time->tm_year + 1900;
+    //log("year = %d",year);
+    
+    //char date[32] = {0};
+    //sprintf(date, "%d%02d%02d",(int)time->tm_year + 1900,(int)time->tm_mon + 1,(int)time->tm_mday);
+    //log("%s",date);
+    //return StringUtils::format("%s",date);
+    return (int)time->tm_mday;
+#endif
+    
+#if ( CC_TARGET_PLATFORM == CC_PLATFORM_WIN32 )
+    
+    struct tm* tm;
+    time_t timep;
+    time(timep);
+    
+    tm = localtime(&timep);
+    char date[32] = {0};
+    sprintf(date, "%d-%02d-%02d",(int)time->tm_year + 1900,(int)time->tm_mon + 1,(int)time->tm_mday);
+    log("%s",date);
+    return StringUtils::format("%s",date);
+    
+#endif
+    
+}
+
 
 bool TouchLayer::init()
 {
@@ -1420,6 +2014,24 @@ void TouchLayer::onExit()
 {
     Layer::onExit();
     _eventDispatcher->removeEventListener(touchListener);
+}
+
+void TostLayer::show(Node* node,std::string& text)
+{
+    Size s = Director::getInstance()->getWinSize();
+    
+    Label* l_text = Label::createWithSystemFont(text, "", 20);
+    
+    Size l_s = l_text->getContentSize();
+    
+    auto bg = LayerColor::create(Color4B(0, 0, 0, 255),l_s.width+10,l_s.height+2);
+    bg->setPosition(Vec2(s.width/2-bg->getContentSize().width/2,s.height/2));
+    node->addChild(bg,1000);
+    
+    l_text->setPosition(bg->getContentSize().width/2, bg->getContentSize().height/2);
+    bg->addChild(l_text);
+ 
+    bg->runAction(Sequence::create(FadeIn::create(0.1f),DelayTime::create(2.0f), FadeOut::create(0.2f),RemoveSelf::create(true), nullptr));
 }
 
 MainScene2D* MainScene2D::getInstance()
@@ -1533,10 +2145,14 @@ extern "C"
             if(model == 1)
             {
                 int level =  UserDefault::getInstance()->getIntegerForKey("level");
-                if(level < 20)
+                int curr_level =  UserDefault::getInstance()->getIntegerForKey("curr_level");
+                if(curr_level == level && level < MAX_LEVEL)
                 {
                     UserDefault::getInstance()->setIntegerForKey("level", level+1);
+                    UserDefault::getInstance()->setIntegerForKey("curr_level", curr_level+1);
                 }
+                if(curr_level < level)
+                    UserDefault::getInstance()->setIntegerForKey("curr_level", curr_level+1);
                
             }
             //初始化分数

@@ -28,9 +28,6 @@ package com.xugu.bonimei;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 
-import com.excelliance.kxqp.sdk.GameSdk;
-import com.excelliance.kxqp.sdk.IQueryUpdateCallback;
-import com.qinglu.ad.QLAdController;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.analytics.MobclickAgent.EScenarioType;
 import com.umeng.fb.FeedbackAgent;
@@ -38,6 +35,7 @@ import com.umeng.socialize.ShareAction;
 import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
+import com.xugu.qewadlib.GAdController;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -61,14 +59,8 @@ public class AppActivity extends Cocos2dxActivity {
 		 
 		MobclickAgent.setScenarioType(this, EScenarioType.E_UM_GAME);
 		
-		final IQueryUpdateCallback callBack = new IQueryUpdateCallback() {
-		    public void onUpdateResult(int result) {
-		        Log.e("--------update-------", "result="+result);
-		    }
-		};
-		GameSdk.queryUpdate(this, callBack,true);
-		
-		QLAdController.getInstance().init(this,"cacc48745d7d2ad7", "8709c455758d1185", true);   
+		//QLAdController.getInstance().init(this,"cacc48745d7d2ad7", "8709c455758d1185", true);   					
+		GAdController.getInstance().init(this, true);  
 	}
 	
 	@Override
@@ -130,7 +122,7 @@ public class AppActivity extends Cocos2dxActivity {
 	
 	public static void showAd(final int i)
 	{
-		QLAdController.getSpotManager().showSpotAds(activity);
+		GAdController.getInstance().showSpotAd();
 	}
 	
 	
