@@ -973,36 +973,41 @@ void MainScene2D::duihuan(int type)
     auto bg = LayerColor::create(Color4B(0,0,0,160),winSize.width,winSize.height);
     layer->addChild(bg);
     
-    auto bg2 = LayerColor::create(Color4B::WHITE,winSize.width/2,winSize.height/2);
-    bg2->setPosition(winSize.width/2/2, winSize.height/2/2);
+    auto bg2 = Sprite::create("duihuan_1.png");
+    bg2->setPosition(winSize.width/2, winSize.height/2+80);
     layer->addChild(bg2);
     
-    std::string s = v_font.at(20).asString();
+    
+    Label* l = Label::createWithSystemFont("100", "", 24);
+    l->setColor(Color3B::RED);
+    l->setPosition(183, 194);
+    bg2->addChild(l);
+    
+    auto daoju = Sprite::create();
     if(type == 1)
     {
-        s = v_font.at(21).asString();
+        daoju->initWithFile("suaxin.png");
     }
-    Label* l = Label::createWithSystemFont(s, "", 24);
-    l->setColor(Color3B::RED);
-    l->setPosition(bg2->getContentSize().width/2, bg2->getContentSize().height/2+80);
-    bg2->addChild(l);
+    else
+    {
+        daoju->initWithFile("wudi.png");
+    }
+    daoju->setPosition(206, 96);
+    bg2->addChild(daoju);
 
-    Button* duihuan = Button::create();
-    duihuan->setAnchorPoint(Vec2(0.5,0.5));
-    duihuan->setPosition(Vec2(bg2->getContentSize().width/2,80));
+    Button* duihuan = Button::create("duihuan_2.png");
+    duihuan->setAnchorPoint(Vec2(0.5,1));
+    duihuan->setPosition(Vec2(bg2->getContentSize().width/2,-10));
     duihuan->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
     bg2->addChild(duihuan);
     duihuan->setTag(type);
     duihuan->setName("duihuan");
-    duihuan->setTitleColor(Color3B::RED);
-    duihuan->setTitleFontSize(34);
-    duihuan->setTitleText(v_font.at(22).asString());
     
     Button* btn = Button::create("002.png","003.png");
-    btn->setAnchorPoint(Vec2(0,1));
-    btn->setPosition(Vec2(10,winSize.height-10));
+    btn->setAnchorPoint(Vec2(1,1));
+    btn->setPosition(Vec2(bg2->getContentSize().width-10,bg2->getContentSize().height-10));
     btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-    bg->addChild(btn);
+    bg2->addChild(btn);
     btn->setName("close_duihuan");
 }
 
