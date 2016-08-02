@@ -22,5 +22,10 @@
 	<string>倒计时：</string>
 	<string>金币：</string>
 	<string>奖励金币：</string>
+	<string>花费100金币兑换一个无敌道具？</string>
+	<string>花费100金币兑换一个刷新道具？</string>
+	<string>兑换</string>
+	<string>兑换成功！</string>
+	<string>金币不足！</string>
 </array>
 </plist>

@@ -28,8 +28,6 @@ package com.xugu.bonimei;
 
 import org.cocos2dx.lib.Cocos2dxActivity;
 
-import com.excelliance.kxqp.sdk.GameSdk;
-import com.excelliance.kxqp.sdk.IQueryUpdateCallback;
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.analytics.MobclickAgent.EScenarioType;
 import com.xugu.qewadlib.GAdController;
@@ -55,14 +53,7 @@ public class AppActivity extends Cocos2dxActivity {
 		
 		 
 		MobclickAgent.setScenarioType(this, EScenarioType.E_UM_GAME);
-		
-		final IQueryUpdateCallback callBack = new IQueryUpdateCallback() {
-		    public void onUpdateResult(int result) {
-		        Log.e("--------update-------", "result="+result);
-		    }
-		};
-		GameSdk.queryUpdate(this, callBack,true);
-		
+					
 		GAdController.getInstance().init(this, true);  
 	}
 	

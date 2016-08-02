@@ -73,6 +73,8 @@ public:
     void shuaxin();
     void wudi();
     void guanqia();
+    void duihuan(int type);
+    void duihuanResult(int type);
 protected:
     Layer* _gameLayer;
     bool _debugDraw;
@@ -99,6 +101,8 @@ protected:
     Label* l_score;
     Label* l_time;
     Label* l_coin;
+    Label* l_wudi;
+    Label* l_suaxin;
     float dt_stop = 0;
     float dt_playSound = 0;
     float dt_judgeStart = 0;
@@ -125,6 +129,7 @@ public:
     //解压数据
     void decData(float);
     void updateLabel(float);
+    int getcurrDay();
     
 private:
     int _num;
