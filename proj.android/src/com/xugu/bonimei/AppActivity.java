@@ -26,7 +26,14 @@ THE SOFTWARE.
 ****************************************************************************/
 package com.xugu.bonimei;
 
+import java.util.HashMap;
+
 import org.cocos2dx.lib.Cocos2dxActivity;
+
+import cn.sharesdk.framework.Platform;
+import cn.sharesdk.framework.PlatformActionListener;
+import cn.sharesdk.framework.ShareSDK;
+import cn.sharesdk.onekeyshare.OnekeyShare;
 
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.analytics.MobclickAgent.EScenarioType;
@@ -39,8 +46,8 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Toast;
 
@@ -69,13 +76,18 @@ public class AppActivity extends Cocos2dxActivity {
 		super.onPause();
 	}
 	
+	@Override
+	protected void onDestroy() {
+		GAdController.getInstance().destory(activity);
+		super.onDestroy();
+	}
+	
 	public static void fenxiang(final int num)
 	{
 		activity.runOnUiThread(new Runnable() {		 
 		    @Override
 		    public void run() {
 		    	share(num);
-		    	Toast.makeText(activity, "功能暂未开放！", 1).show();
 		    }
 		});
 	}
@@ -85,7 +97,11 @@ public class AppActivity extends Cocos2dxActivity {
 		activity.runOnUiThread(new Runnable() {		 
 		    @Override
 		    public void run() {
-		    	Toast.makeText(activity, "功能暂未开放！", 1).show();
+				String mAddress = "market://details?id=" + activity.getPackageName();   
+		    	Intent marketIntent = new Intent("android.intent.action.VIEW");    
+		    	marketIntent.setData(Uri.parse(mAddress ));    
+		    	activity.startActivity(marketIntent);  
+		    	//Toast.makeText(activity, "功能暂未开放！", 1).show();
 		    }
 		});
 	}
@@ -152,7 +168,31 @@ public class AppActivity extends Cocos2dxActivity {
 	
 	public static void share(int num)
 	{
-		       
+		 ShareSDK.initSDK(activity);
+         OnekeyShare oks = new OnekeyShare();
+         //关闭sso授权
+         oks.disableSSOWhenAuthorize(); 
+
+         oks.setTitle(activity.getString(R.string.app_name));
+         // titleUrl是标题的网络链接，仅在人人网和QQ空间使用
+         oks.setTitleUrl("http://android.myapp.com/myapp/detail.htm?apkName=com.xugu.bonimei");
+         // text是分享文本，所有平台都需要这个字段
+         oks.setText("我已撩了"+num+"个小火柴，更多小火柴等你来撩！");
+         // imagePath是图片的本地路径，Linked-In以外的平台都支持此参数
+         //oks.setImagePath("/sdcard/test.jpg");//确保SDcard下面存在此张图片
+         oks.setImageUrl("http://pp.myapp.com/ma_icon/0/icon_42321077_1470207363/96");
+         // url仅在微信（包括好友和朋友圈）中使用
+         oks.setUrl("http://android.myapp.com/myapp/detail.htm?apkName=com.xugu.bonimei");
+         // comment是我对这条分享的评论，仅在人人网和QQ空间使用
+         oks.setComment("好玩才是硬道理！");
+         oks.setCallback(new ShareListener());
+         // site是分享此内容的网站名称，仅在QQ空间使用
+//         oks.setSite(getString(R.string.app_name));
+//         // siteUrl是分享此内容的网站地址，仅在QQ空间使用
+//         oks.setSiteUrl("http://sharesdk.cn");
+
+        // 启动分享GUI
+         oks.show(activity);
 	}
 	
 	public native static void shareSuccess();
@@ -166,4 +206,25 @@ public class AppActivity extends Cocos2dxActivity {
         super.onActivityResult(requestCode, resultCode, data);
         /** attention to this below ,must add this**/
     }
+	
+	private static class ShareListener implements PlatformActionListener
+	{
+		@Override
+		public void onCancel(Platform arg0, int arg1) {
+			Toast.makeText(activity," 分享取消了!", Toast.LENGTH_SHORT).show();
+            sharefailure();
+		}
+		@Override
+		public void onComplete(Platform arg0, int arg1,
+				HashMap<String, Object> arg2) {
+			 Toast.makeText(activity, " 分享成功啦!", Toast.LENGTH_SHORT).show();
+	         shareSuccess();
+		}
+		@Override
+		public void onError(Platform arg0, int arg1, Throwable arg2) {
+			Toast.makeText(activity, " 分享失败啦!", Toast.LENGTH_SHORT).show();
+            sharefailure();
+		}
+		
+	}
 }
