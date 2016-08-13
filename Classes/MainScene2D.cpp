@@ -211,7 +211,7 @@ bool MainScene2D::init()
         l_score = Label::createWithSystemFont("", "", 28);
         l_score->setColor(Color3B::BLUE);
         l_score->setAnchorPoint(Vec2(0,0));
-        l_score->setPosition(124, 22);
+        l_score->setPosition(100, 22);
         shetou->addChild(l_score,100);
         
         l_time = Label::createWithSystemFont("", "", 24);
