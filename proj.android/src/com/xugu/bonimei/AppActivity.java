@@ -146,9 +146,9 @@ public class AppActivity extends Cocos2dxActivity {
 							new DialogInterface.OnClickListener() {
 								@Override
 								public void onClick(DialogInterface dialog,
-										int which) {
+										int which) {																		
 									finish();
-									System.exit(0);
+									closeApp();
 								}
 							})
 					.setNegativeButton("返回",
@@ -165,6 +165,19 @@ public class AppActivity extends Cocos2dxActivity {
 		
 	}
 
+	public void closeApp()
+	{
+		new Thread(){
+			public void run() {
+				try {
+					Thread.sleep(2000);
+					System.exit(0);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			};
+		}.start();
+	}
 	
 	public static void share(int num)
 	{
