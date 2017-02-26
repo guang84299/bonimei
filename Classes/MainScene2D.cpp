@@ -46,28 +46,35 @@ bool MainScene2D::init()
         int boder_top = size.height;
         int boder_bottom = 0;
         
-        auto bg = Sprite::create("bg.jpg");
+        auto bg = Sprite::create("bg.png");
         bg->setPosition(size.width/2, size.height/2);
         this->addChild(bg);
         
-        auto tanzi = Sprite::create("tanzi.png");
-        tanzi->setPosition(size.width/2, 100);
-        this->addChild(tanzi);
+//        auto tanzi = Sprite::create("tanzi.png");
+//        tanzi->setPosition(size.width/2, 100);
+//        this->addChild(tanzi);
         
-        auto bottom = Sprite::create("bottom.png");
-        bottom->setAnchorPoint(Vec2(0.5,0));
-        bottom->setPosition(size.width/2, 0);
-        this->addChild(bottom);
+//        auto bottom = Sprite::create("bottom.png");
+//        bottom->setAnchorPoint(Vec2(0.5,0));
+//        bottom->setPosition(size.width/2, 0);
+//        this->addChild(bottom);
         
         auto qq = Sprite::create("qq.png");
-        qq->setPosition(250, 335);
-        qq->setScale(0.7);
+        qq->setPosition(size.width*0.55f, 300);
         this->addChild(qq);
         
-        auto qq2 = Sprite::create("qq1.png");
-        qq2->setPosition(size.width-250, 335);
-        qq2->setScale(0.7);
+        auto qq2 = Sprite::create("qq.png");
+        qq2->setPosition(size.width*0.85, 400);
         this->addChild(qq2);
+        
+        auto book = Sprite::create("book.png");
+        book->setPosition(size.width*0.85, 170);
+        this->addChild(book);
+        
+        auto boli = Sprite::create("boli.png");
+        boli->setPosition(size.width*0.2, 480);
+        this->addChild(boli);
+
         
         auto uilayer = Layer::create();
         uilayer->setName("uilayer");
@@ -187,6 +194,7 @@ bool MainScene2D::init()
             menu->setAnchorPoint(Vec2(0,0.5));
             menu->setPosition(Vec2(10, 500));
             uilayer->addChild(menu);
+            
         }
         
         auto shetou = Sprite::create("shetou.png");
@@ -248,23 +256,46 @@ bool MainScene2D::init()
         
         
         node = Node::create();
-        Vec2 edges[] = {Vec2(mx(0), 145),Vec2(mx(40), 167),Vec2(mx(90), 167),Vec2(mx(120), 150),Vec2(mx(142), 127),Vec2(mx(200), 125),Vec2(mx(230), 115),Vec2(mx(260), 91),Vec2(mx(300), 101),Vec2(mx(322), 99),Vec2(mx(355), 120),Vec2(mx(390), 128),Vec2(mx(430), 118),Vec2(mx(459), 91),Vec2(mx(500), 115),Vec2(mx(540), 122),Vec2(mx(590), 118),Vec2(mx(625), 98),Vec2(mx(660), 101),Vec2(mx(700), 95),Vec2(mx(730), 113),Vec2(mx(760), 119),Vec2(mx(790), 115),Vec2(mx(810), 108),Vec2(mx(840), 139),Vec2(mx(875), 147),Vec2(mx(915), 135),Vec2(mx(937), 110),Vec2(mx(980), 120),Vec2(mx(1015), 110),Vec2(mx(1038), 159),Vec2(mx(1070), 169),Vec2(mx(1110), 165),Vec2(mx(1136), 149),Vec2(mx(1170), 155),Vec2(mx(1200), 140)};
-        node->addComponent(PhysicsBody::createEdgeChain(edges, 36));
+//        Vec2 edges[] = {Vec2(mx(0), 145),Vec2(mx(40), 167),Vec2(mx(90), 167),Vec2(mx(120), 150),Vec2(mx(142), 127),Vec2(mx(200), 125),Vec2(mx(230), 115),Vec2(mx(260), 91),Vec2(mx(300), 101),Vec2(mx(322), 99),Vec2(mx(355), 120),Vec2(mx(390), 128),Vec2(mx(430), 118),Vec2(mx(459), 91),Vec2(mx(500), 115),Vec2(mx(540), 122),Vec2(mx(590), 118),Vec2(mx(625), 98),Vec2(mx(660), 101),Vec2(mx(700), 95),Vec2(mx(730), 113),Vec2(mx(760), 119),Vec2(mx(790), 115),Vec2(mx(810), 108),Vec2(mx(840), 139),Vec2(mx(875), 147),Vec2(mx(915), 135),Vec2(mx(937), 110),Vec2(mx(980), 120),Vec2(mx(1015), 110),Vec2(mx(1038), 159),Vec2(mx(1070), 169),Vec2(mx(1110), 165),Vec2(mx(1136), 149),Vec2(mx(1170), 155),Vec2(mx(1200), 140)};
+        auto bottom_body = PhysicsBody::createBox(Size(size.width,200));
+        bottom_body->setDynamic(false);
+        node->addComponent(bottom_body);
+        node->setPosition(Vec2(size.width/2,0));
         _gameLayer->addChild(node);
         
         node = Node::create();
-        auto circle_body = PhysicsBody::createCircle(40,PhysicsMaterial(0.f,0.1f,0.1f));
+        auto circle_body = PhysicsBody::createCircle(26,PhysicsMaterial(0.f,0.1f,0.1f));
         circle_body->setDynamic(false);
         node->addComponent(circle_body);
         node->setPosition(qq->getPosition());
         _gameLayer->addChild(node);
         
         node = Node::create();
-        auto circle_body2 = PhysicsBody::createCircle(40,PhysicsMaterial(0.f,0.1f,0.1f));
+        auto circle_body2 = PhysicsBody::createCircle(26,PhysicsMaterial(0.f,0.1f,0.1f));
         circle_body2->setDynamic(false);
         node->addComponent(circle_body2);
         node->setPosition(qq2->getPosition());
         _gameLayer->addChild(node);
+        
+        Vec2 edges[] = {Vec2(-146, -72),Vec2(-146, 34),Vec2(-108, 72),
+                        Vec2(108, 72),Vec2(146, 34),Vec2(146, -72)};
+        node = Node::create();
+        auto book_body = PhysicsBody::createPolygon(edges,6);
+        book_body->setDynamic(false);
+        node->addComponent(book_body);
+        node->setPosition(book->getPosition());
+        _gameLayer->addChild(node);
+        
+        
+        Vec2 edges2[] = {Vec2(-240, -0),Vec2(-240, 20),Vec2(-200, 32),
+            Vec2(200, 32),Vec2(240, 20),Vec2(240, -0)};
+        node = Node::create();
+        auto boli_body = PhysicsBody::createPolygon(edges2,6);
+        boli_body->setDynamic(false);
+        node->addComponent(boli_body);
+        node->setPosition(boli->getPosition());
+        _gameLayer->addChild(node);
+        
         
 //        node = Node::create();
 //        Vec2 tv = tanzi->getPosition();
@@ -836,8 +867,11 @@ void MainScene2D::addSprite(Vec2 v)
     int z = random(1, 100);
     
     auto ball = Sprite::create("huochai.png");
-    //ball->setAnchorPoint(Vec2::ZERO);
-    auto body = PhysicsBody::createBox(Size(22,215),PhysicsMaterial(1,0.8,1));
+    //ball->setAnchorPoint(Vec2::ZERO);createEdgeBox(Size(42,272),PhysicsMaterial(1,0.8,1),1);
+//    Vec2 edges[] = {Vec2(-146, -72),Vec2(-146, 34),Vec2(-108, 72),
+//        Vec2(108, 72),Vec2(146, 34),Vec2(146, -72)};
+//    auto book_body = PhysicsBody::createPolygon(edges,6);
+    auto body = PhysicsBody::createBox(Size(42,272),PhysicsMaterial(1,0.8,1));
     body->setName("box");
     body->setDynamic(true);
     body->setEnabled(false);
@@ -845,6 +879,11 @@ void MainScene2D::addSprite(Vec2 v)
     ball->addComponent(body);
     body->setTag(DRAG_BODYS_TAG);
     ball->setPosition(v);
+    
+    auto balltou = Sprite::create("huocaitou.png");
+    balltou->setPosition(ball->getContentSize().width/2,
+                         ball->getContentSize().height-balltou->getContentSize().height/2);
+    ball->addChild(balltou);
     
     //body->setCategoryBitmask(z-1);    // 1000
    // body->setContactTestBitmask(z-2); // 0010
@@ -1482,7 +1521,7 @@ void MainScene2D::createPages()
         layout->setContentSize(winSize);
     
         
-        ImageView* bg = ImageView::create("bg.jpg");
+        ImageView* bg = ImageView::create("bg.png");
         // bg->setContentSize(winSize);
         //bg->setAnchorPoint(Vec2(0.5,0.5));
         bg->setPosition(Vec2(layout->getContentSize().width / 2.0f, layout->getContentSize().height / 2.0f));
@@ -1735,19 +1774,19 @@ void HomeScene::goHome()
 {
     Size s = Director::getInstance()->getWinSize();
     
-    auto homebg = Sprite::create("bg.jpg");
+    auto homebg = Sprite::create("bg.png");
     homebg->setPosition(s.width/2,s.height/2);
     this->addChild(homebg);
     
     
-    auto tanzi = Sprite::create("tanzi.png");
-    tanzi->setPosition(0, 80);
-    this->addChild(tanzi);
-    
-    auto bottom = Sprite::create("bottom.png");
-    bottom->setAnchorPoint(Vec2(0.5,0));
-    bottom->setPosition(s.width/2, 0);
-    this->addChild(bottom);
+//    auto tanzi = Sprite::create("tanzi.png");
+//    tanzi->setPosition(0, 80);
+//    this->addChild(tanzi);
+//    
+//    auto bottom = Sprite::create("bottom.png");
+//    bottom->setAnchorPoint(Vec2(0.5,0));
+//    bottom->setPosition(s.width/2, 0);
+//    this->addChild(bottom);
  
 
     Button* btn_start = Button::create("cuangguan.png");
@@ -1784,33 +1823,34 @@ void HomeScene::goHome()
     this->addChild(_editNum);*/
 
     
-    auto diban = Sprite::create("diban.png");
-    diban->setAnchorPoint(Vec2(0.5,1));
-    diban->setPosition(s.width/3.0f+60,s.height);
-    this->addChild(diban);
+//    auto diban = Sprite::create("diban.png");
+//    diban->setAnchorPoint(Vec2(0.5,1));
+//    diban->setPosition(s.width/3.0f+60,s.height);
+//    this->addChild(diban);
+//    
+//    Button* btn = Button::create("fankui.png");
+//    btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+//    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
+//    diban->addChild(btn);
+//    btn->setName("fankui");
+//    
+//    
+//    diban = Sprite::create("diban.png");
+//    diban->setAnchorPoint(Vec2(0.5,1));
+//    diban->setPosition(s.width/3.0f*2-60,s.height);
+//    this->addChild(diban);
     
-    Button* btn = Button::create("fankui.png");
-    btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
-    diban->addChild(btn);
-    btn->setName("fankui");
+//    btn = Button::create("fenxiang.png");
+//    btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+//    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
+//    diban->addChild(btn);
+//    btn->setName("fenxiang");
+//    //Director::getInstance()->replaceScene(MainScene2D::create());
+//    
+//    tanzi->runAction(RepeatForever::create(Sequence::create(
+//                                                            MoveTo::create(12, Vec2(s.width+tanzi->getContentSize().width/2,tanzi->getPositionY())),
+//                                                            MoveTo::create(0, Vec2(-tanzi->getContentSize().width/2,tanzi->getPositionY())),NULL)));
     
-    
-    diban = Sprite::create("diban.png");
-    diban->setAnchorPoint(Vec2(0.5,1));
-    diban->setPosition(s.width/3.0f*2-60,s.height);
-    this->addChild(diban);
-    
-    btn = Button::create("fenxiang.png");
-    btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
-    diban->addChild(btn);
-    btn->setName("fenxiang");
-    //Director::getInstance()->replaceScene(MainScene2D::create());
-    
-    tanzi->runAction(RepeatForever::create(Sequence::create(
-                                                            MoveTo::create(12, Vec2(s.width+tanzi->getContentSize().width/2,tanzi->getPositionY())),
-                                                            MoveTo::create(0, Vec2(-tanzi->getContentSize().width/2,tanzi->getPositionY())),NULL)));
 }
 
 void HomeScene::touchEvent(Ref *pSender, Widget::TouchEventType type)
