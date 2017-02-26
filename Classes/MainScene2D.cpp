@@ -90,37 +90,37 @@ bool MainScene2D::init()
         diban->addChild(btn);
         btn->setName("home");
         
+//        diban = Sprite::create("diban.png");
+//        diban->setAnchorPoint(Vec2(0,1));
+//        diban->setPosition(100,size.height);
+//        uilayer->addChild(diban);
+//        btn = Button::create("music.png");
+//        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+//        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+//        diban->addChild(btn);
+//        btn->setName("music");
+//        if(!UserDefault::getInstance()->getBoolForKey("music"))
+//        {
+//            btn->loadTextureNormal("music2.png");
+//        }
+//        
+//        diban = Sprite::create("diban.png");
+//        diban->setAnchorPoint(Vec2(0,1));
+//        diban->setPosition(200,size.height);
+//        uilayer->addChild(diban);
+//        btn = Button::create("sound.png");
+//        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+//        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+//        diban->addChild(btn);
+//        btn->setName("sound");
+//        if(!UserDefault::getInstance()->getBoolForKey("sound"))
+//        {
+//            btn->loadTextureNormal("sound2.png");
+//        }
+        
         diban = Sprite::create("diban.png");
         diban->setAnchorPoint(Vec2(0,1));
         diban->setPosition(100,size.height);
-        uilayer->addChild(diban);
-        btn = Button::create("music.png");
-        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        diban->addChild(btn);
-        btn->setName("music");
-        if(!UserDefault::getInstance()->getBoolForKey("music"))
-        {
-            btn->loadTextureNormal("music2.png");
-        }
-        
-        diban = Sprite::create("diban.png");
-        diban->setAnchorPoint(Vec2(0,1));
-        diban->setPosition(200,size.height);
-        uilayer->addChild(diban);
-        btn = Button::create("sound.png");
-        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        diban->addChild(btn);
-        btn->setName("sound");
-        if(!UserDefault::getInstance()->getBoolForKey("sound"))
-        {
-            btn->loadTextureNormal("sound2.png");
-        }
-        
-        diban = Sprite::create("diban.png");
-        diban->setAnchorPoint(Vec2(0,1));
-        diban->setPosition(300,size.height);
         uilayer->addChild(diban);
         btn = Button::create("btn_guanqia.png");
         btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
@@ -129,26 +129,26 @@ bool MainScene2D::init()
         btn->setName("guanqia");
         
         
-        diban = Sprite::create("diban.png");
-        diban->setAnchorPoint(Vec2(0,1));
-        diban->setPosition(size.width*0.9f,size.height);
-        uilayer->addChild(diban);
-        btn = Button::create("help.png");
-        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        diban->addChild(btn);
-        btn->setName("help");
-        
-        btn = Button::create("hongbao.png");
-        btn->setAnchorPoint(Vec2(1,1));
-        btn->setPosition(Vec2(diban->getPositionX()+5 ,size.height));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        uilayer->addChild(btn);
-        btn->setName("hongbao");
+//        diban = Sprite::create("diban.png");
+//        diban->setAnchorPoint(Vec2(0,1));
+//        diban->setPosition(size.width*0.9f,size.height);
+//        uilayer->addChild(diban);
+//        btn = Button::create("help.png");
+//        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+//        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+//        diban->addChild(btn);
+//        btn->setName("help");
+//        
+//        btn = Button::create("hongbao.png");
+//        btn->setAnchorPoint(Vec2(1,1));
+//        btn->setPosition(Vec2(diban->getPositionX()+5 ,size.height));
+//        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+//        uilayer->addChild(btn);
+//        btn->setName("hongbao");
         
         btn = Button::create("suaxin.png");
         btn->setAnchorPoint(Vec2(1,1));
-        btn->setPosition(Vec2(diban->getPositionX() - 100,size.height-10));
+        btn->setPosition(Vec2(size.width*0.9f - 100,size.height-10));
         btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
         uilayer->addChild(btn);
         btn->setName("shuaxin");
@@ -166,23 +166,30 @@ bool MainScene2D::init()
         num_bg->addChild(l_suaxin);
   
         
-        btn = Button::create("wudi.png");
+//        btn = Button::create("wudi.png");
+//        btn->setAnchorPoint(Vec2(1,1));
+//        btn->setPosition(Vec2(diban->getPositionX() - 180,size.height-10));
+//        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+//        uilayer->addChild(btn);
+//        btn->setName("wudi");
+//        
+//        int wudi_num = UserDefault::getInstance()->getIntegerForKey("wudi_num");
+//        sprintf(c, "%d", wudi_num);
+//        num_bg = Sprite::create("dian_1.png");
+//        num_bg->setAnchorPoint(Vec2(1,0));
+//        num_bg->setPosition(btn->getContentSize().width-2, 2);
+//        btn->addChild(num_bg);
+//        l_wudi = Label::createWithSystemFont(c, "", 24);
+//        l_wudi->setColor(Color3B::BLUE);
+//        l_wudi->setPosition(num_bg->getContentSize().width/2, num_bg->getContentSize().height/2);
+//        num_bg->addChild(l_wudi);
+        
+        btn = Button::create("setting.png");
         btn->setAnchorPoint(Vec2(1,1));
-        btn->setPosition(Vec2(diban->getPositionX() - 180,size.height-10));
+        btn->setPosition(Vec2(size.width - 10,size.height-10));
         btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
         uilayer->addChild(btn);
-        btn->setName("wudi");
-        
-        int wudi_num = UserDefault::getInstance()->getIntegerForKey("wudi_num");
-        sprintf(c, "%d", wudi_num);
-        num_bg = Sprite::create("dian_1.png");
-        num_bg->setAnchorPoint(Vec2(1,0));
-        num_bg->setPosition(btn->getContentSize().width-2, 2);
-        btn->addChild(num_bg);
-        l_wudi = Label::createWithSystemFont(c, "", 24);
-        l_wudi->setColor(Color3B::BLUE);
-        l_wudi->setPosition(num_bg->getContentSize().width/2, num_bg->getContentSize().height/2);
-        num_bg->addChild(l_wudi);
+        btn->setName("setting");
 
         if(Director::getInstance()->isDisplayStats())
         {
@@ -197,9 +204,9 @@ bool MainScene2D::init()
             
         }
         
-        auto shetou = Sprite::create("shetou.png");
+        auto shetou = Sprite::create("time_bg.png");
         shetou->setAnchorPoint(Vec2(0.5,1));
-        shetou->setPosition(size.width/2, size.height);
+        shetou->setPosition(size.width/2, size.height-10);
         uilayer->addChild(shetou);
         
         Label * label = Label::createWithSystemFont("", "", 38);
@@ -220,18 +227,20 @@ bool MainScene2D::init()
         l_score->setColor(Color3B::BLUE);
         l_score->setAnchorPoint(Vec2(0,0));
         l_score->setPosition(100, 22);
+        l_score->setVisible(false);
         shetou->addChild(l_score,100);
         
         l_time = Label::createWithSystemFont("", "", 24);
         l_time->setColor(Color3B::BLUE);
-        l_time->setAnchorPoint(Vec2(0.5,1));
-        l_time->setPosition(size.width/2, size.height-120);
-        uilayer->addChild(l_time,100);
+        l_time->setAnchorPoint(Vec2(0.5,0.5));
+        l_time->setPosition(shetou->getContentSize().width/2, shetou->getContentSize().height/2);
+        shetou->addChild(l_time,100);
 
         l_coin = Label::createWithSystemFont("", "", 28);
         l_coin->setColor(Color3B::BLUE);
         l_coin->setAnchorPoint(Vec2(0,0));
         l_coin->setPosition(100, 55);
+        l_coin->setVisible(false);
         shetou->addChild(l_coin,100);
         
         _gameLayer = Layer::create();
@@ -1726,13 +1735,13 @@ bool HomeScene::init()
     logo->setPosition(s.width/2,s.height/2);
     this->addChild(logo);
     
-    bool first = UserDefault::getInstance()->getBoolForKey("first");
-    if(!first)
-    {
-        UserDefault::getInstance()->setBoolForKey("music", true);
-        UserDefault::getInstance()->setBoolForKey("sound", true);
-        UserDefault::getInstance()->setBoolForKey("first", true);
-    }
+//    bool first = UserDefault::getInstance()->getBoolForKey("first");
+//    if(!first)
+//    {
+        UserDefault::getInstance()->setBoolForKey("music", false);
+        UserDefault::getInstance()->setBoolForKey("sound", false);
+        UserDefault::getInstance()->setBoolForKey("first", false);
+//    }
     int day = UserDefault::getInstance()->getIntegerForKey("day");
     int curr_day = getcurrDay();
     if(day != curr_day)
