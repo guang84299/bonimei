@@ -23,6 +23,54 @@ using namespace CocosDenshion;
 #define MAX_LEVEL 20
 #define DT_ISSTART 0.2
 
+GSprite* GSprite::create(int type)
+{
+    GSprite* sp = new GSprite();
+    if(sp && sp->init(type))
+    {
+        sp->autorelease();
+        return sp;
+    }
+    CC_SAFE_DELETE(sp);
+    return nullptr;
+}
+
+bool GSprite::init(int type)
+{
+    if(!Sprite::init())
+    {
+        return false;
+    }
+    this->type = type;
+    if(type == 1)
+    {
+        this->initWithFile("huo1.png");
+        this->runAction(RepeatForever::create(createAnimate("huo",4,0.1f)));
+    }
+    
+    return true;
+}
+
+Animate* GSprite::createAnimate(const std::string &file,int num,float speed)
+{
+    auto animation = Animation::create();
+    
+    for(int i=1;i<=num;i++)
+    {
+        char szName[100] = {0};
+        sprintf(szName, "%01d.png", i);
+        std::string f  = file + szName;
+        animation->addSpriteFrameWithFile(f);
+    }
+    
+    // should last 2.8 seconds. And there are 14 frames.
+    animation->setDelayPerUnit(speed);
+    animation->setRestoreOriginalFrame(true);
+    auto action = Animate::create(animation);
+    return action;
+}
+
+
 
 static MainScene2D* _instance = nullptr;
 bool MainScene2D::init()
@@ -54,10 +102,10 @@ bool MainScene2D::init()
 //        tanzi->setPosition(size.width/2, 100);
 //        this->addChild(tanzi);
         
-//        auto bottom = Sprite::create("bottom.png");
-//        bottom->setAnchorPoint(Vec2(0.5,0));
-//        bottom->setPosition(size.width/2, 0);
-//        this->addChild(bottom);
+        auto bottom = Sprite::create("bottom.png");
+        bottom->setAnchorPoint(Vec2(0.5,0));
+        bottom->setPosition(size.width/2, 0);
+        this->addChild(bottom);
         
         auto qq = Sprite::create("qq.png");
         qq->setPosition(size.width*0.55f, 300);
@@ -74,21 +122,30 @@ bool MainScene2D::init()
         auto boli = Sprite::create("boli.png");
         boli->setPosition(size.width*0.2, 480);
         this->addChild(boli);
+        
+        auto gs = GSprite::create(1);
+        gs->setPosition(boli->getPositionX()-60, gs->getContentSize().height/2+ boli->getPositionY()-60);
+        this->addChild(gs);
+        gss.push_back(gs);
+        
+        auto ns = LayerColor::create(Color4B::GREEN, 20, 20);
+        ns->setPosition(gs->getPosition());
+        this->addChild(ns);
 
         
         auto uilayer = Layer::create();
         uilayer->setName("uilayer");
         this->addChild(uilayer,100);
         
-        auto diban = Sprite::create("diban.png");
-        diban->setAnchorPoint(Vec2(0,1));
-        diban->setPosition(0,size.height);
-        uilayer->addChild(diban);
-        Button* btn = Button::create("home.png");
-        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        diban->addChild(btn);
-        btn->setName("home");
+//        auto diban = Sprite::create("diban.png");
+//        diban->setAnchorPoint(Vec2(0,1));
+//        diban->setPosition(0,size.height);
+//        uilayer->addChild(diban);
+//        Button* btn = Button::create("home.png");
+//        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+//        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+//        diban->addChild(btn);
+//        btn->setName("home");
         
 //        diban = Sprite::create("diban.png");
 //        diban->setAnchorPoint(Vec2(0,1));
@@ -118,15 +175,15 @@ bool MainScene2D::init()
 //            btn->loadTextureNormal("sound2.png");
 //        }
         
-        diban = Sprite::create("diban.png");
-        diban->setAnchorPoint(Vec2(0,1));
-        diban->setPosition(100,size.height);
-        uilayer->addChild(diban);
-        btn = Button::create("btn_guanqia.png");
-        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        diban->addChild(btn);
-        btn->setName("guanqia");
+//        diban = Sprite::create("diban.png");
+//        diban->setAnchorPoint(Vec2(0,1));
+//        diban->setPosition(100,size.height);
+//        uilayer->addChild(diban);
+//        btn = Button::create("btn_guanqia.png");
+//        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+//        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+//        diban->addChild(btn);
+//        btn->setName("guanqia");
         
         
 //        diban = Sprite::create("diban.png");
@@ -146,9 +203,14 @@ bool MainScene2D::init()
 //        uilayer->addChild(btn);
 //        btn->setName("hongbao");
         
-        btn = Button::create("suaxin.png");
+        auto skillbg = Sprite::create("1-9.png");
+        skillbg->setAnchorPoint(Vec2(1,1));
+        skillbg->setPosition(Vec2(size.width*0.85f,size.height));
+        uilayer->addChild(skillbg);
+        
+        Button *btn = Button::create("anniu-13.png","anniu-14.png");
         btn->setAnchorPoint(Vec2(1,1));
-        btn->setPosition(Vec2(size.width*0.9f - 100,size.height-10));
+        btn->setPosition(Vec2(size.width*0.84f,size.height-5));
         btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
         uilayer->addChild(btn);
         btn->setName("shuaxin");
@@ -166,25 +228,25 @@ bool MainScene2D::init()
         num_bg->addChild(l_suaxin);
   
         
-//        btn = Button::create("wudi.png");
-//        btn->setAnchorPoint(Vec2(1,1));
-//        btn->setPosition(Vec2(diban->getPositionX() - 180,size.height-10));
-//        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-//        uilayer->addChild(btn);
-//        btn->setName("wudi");
-//        
-//        int wudi_num = UserDefault::getInstance()->getIntegerForKey("wudi_num");
-//        sprintf(c, "%d", wudi_num);
-//        num_bg = Sprite::create("dian_1.png");
-//        num_bg->setAnchorPoint(Vec2(1,0));
-//        num_bg->setPosition(btn->getContentSize().width-2, 2);
-//        btn->addChild(num_bg);
-//        l_wudi = Label::createWithSystemFont(c, "", 24);
-//        l_wudi->setColor(Color3B::BLUE);
-//        l_wudi->setPosition(num_bg->getContentSize().width/2, num_bg->getContentSize().height/2);
-//        num_bg->addChild(l_wudi);
+        btn = Button::create("anniu-11.png","anniu-12.png");
+        btn->setAnchorPoint(Vec2(1,1));
+        btn->setPosition(Vec2(size.width*0.76f,size.height-5));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        uilayer->addChild(btn);
+        btn->setName("wudi");
         
-        btn = Button::create("setting.png");
+        int wudi_num = UserDefault::getInstance()->getIntegerForKey("wudi_num");
+        sprintf(c, "%d", wudi_num);
+        num_bg = Sprite::create("dian_1.png");
+        num_bg->setAnchorPoint(Vec2(1,0));
+        num_bg->setPosition(btn->getContentSize().width-2, 2);
+        btn->addChild(num_bg);
+        l_wudi = Label::createWithSystemFont(c, "", 24);
+        l_wudi->setColor(Color3B::BLUE);
+        l_wudi->setPosition(num_bg->getContentSize().width/2, num_bg->getContentSize().height/2);
+        num_bg->addChild(l_wudi);
+        
+        btn = Button::create("1-10.png");
         btn->setAnchorPoint(Vec2(1,1));
         btn->setPosition(Vec2(size.width - 10,size.height-10));
         btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
@@ -230,8 +292,7 @@ bool MainScene2D::init()
         l_score->setVisible(false);
         shetou->addChild(l_score,100);
         
-        l_time = Label::createWithSystemFont("", "", 24);
-        l_time->setColor(Color3B::BLUE);
+        l_time = LabelAtlas::create("", "fonts/shuzi.png", 28, 44, '0');
         l_time->setAnchorPoint(Vec2(0.5,0.5));
         l_time->setPosition(shetou->getContentSize().width/2, shetou->getContentSize().height/2);
         shetou->addChild(l_time,100);
@@ -383,6 +444,7 @@ void MainScene2D::update(float dt)
                 {
                     sel->runAction(Sequence::create(TintTo::create(0.2f, 255, 255, 255),RemoveSelf::create(), NULL));
                 }
+                sel->setTag(2);
                 isSelRemove = true;
             
                 score += 1;
@@ -398,6 +460,7 @@ void MainScene2D::update(float dt)
                 }
             }
             else{
+                sprites[i]->setTag(2);
                 sprites[i]->runAction(Sequence::create(TintTo::create(0.2f, 255, 255, 255),RemoveSelf::create(), NULL));
             }
             
@@ -433,9 +496,9 @@ void MainScene2D::update(float dt)
     {
         for(int i=0;i<sprites.size();i++)
         {
-            if(sprites[i] == sel)
+            if(sprites[i] == sel || sprites[i]->getTag()==2)
                 continue;
-            if(sprites[i]->getPosition().getDistance(vecs[i]) > 3)
+            if(sprites[i]->getPosition().getDistance(vecs[i]) > 10)
             {
                 addMoves(sprites[i]);
             }
@@ -445,15 +508,36 @@ void MainScene2D::update(float dt)
             v1.y = r.getMinY();
             v2.x = r.getMaxX();
             v2.y = r.getMaxY();
-            if(v1.getDistance(vecs_min[i]) > 3)
+            if(v1.getDistance(vecs_min[i]) > 10)
             {
                  addMoves(sprites[i]);
             }
-            if(v2.getDistance(vecs_max[i]) > 3)
+            if(v2.getDistance(vecs_max[i]) > 10)
             {
                  addMoves(sprites[i]);
             }
         }
+        
+        //判断是否经过火
+        if(!isSelRemove)
+        {
+            Sprite* tou = (Sprite*)sel->getChildByName("tou");
+            Vec2 tv = sel->convertToWorldSpace(tou->getPosition());
+            for(int i=0;i<gss.size();i++)
+            {
+                GSprite* gs = gss.at(i);
+                if(gs->type == 1)
+                {
+                    Vec2 gv = gs->getPosition();
+                    if(gv.getDistance(tv) < 200)
+                    {
+                        addMoves(sel);
+                        break;
+                    }
+                }
+            }
+        }
+        
         if(moves.size() > 0)
         {
             gameOver();
@@ -470,7 +554,7 @@ void MainScene2D::update(float dt)
             bool isb = false;
             for(int i=0;i<sprites.size();i++)
             {
-                if(sprites[i]->getPosition().getDistance(vecs[i]) > 2)
+                if(sprites[i]->getPosition().getDistance(vecs[i]) > 3)
                 {
                     isb = true;
                 }
@@ -480,11 +564,11 @@ void MainScene2D::update(float dt)
                 v1.y = r.getMinY();
                 v2.x = r.getMaxX();
                 v2.y = r.getMaxY();
-                if(v1.getDistance(vecs_min[i]) > 2)
+                if(v1.getDistance(vecs_min[i]) > 3)
                 {
                     isb = true;
                 }
-                if(v2.getDistance(vecs_max[i]) > 2)
+                if(v2.getDistance(vecs_max[i]) > 3)
                 {
                     isb = true;
                 }
@@ -516,7 +600,7 @@ void MainScene2D::update(float dt)
         {
             char c[8];
             sprintf(c, "%i", t);
-            l_time->setString(v_font.at(17).asString() + c);
+            l_time->setString(c);
         }
     }
 
@@ -561,10 +645,10 @@ void MainScene2D::gameWin()
 
 void MainScene2D::gameOver()
 {
-   // isStart = false;
+    isStart = false;
     if(!isFirstDie)
     {
-        moves.insert(moves.begin(), sel);
+//        moves.insert(moves.begin(), sel);
         this->runAction(Sequence::create(DelayTime::create(3),CallFunc::create(std::bind(&MainScene2D::addGameTouchLayer, this,false)), NULL));
     }
     isFirstDie = true;
@@ -609,8 +693,25 @@ void MainScene2D::addGameTouchLayer(bool isWin)
     
     Size size = Director::getInstance()->getWinSize();
     
+    auto bg = Sprite::create("2-1.png");
+    bg->setPosition(size.width/2, size.height/2);
+    layer->addChild(bg);
+    
+    Size bgSize = bg->getContentSize();
+    
+    auto title_bg = Sprite::create("2-2.png");
+    title_bg->setAnchorPoint(Vec2(0.5,1));
+    title_bg->setPosition(bgSize.width/2, bgSize.height+12);
+    bg->addChild(title_bg);
+
+    
     if(isWin)
     {
+        auto title = Sprite::create("2-6.png");
+        title->setAnchorPoint(Vec2(0.5,1));
+        title->setPosition(title_bg->getContentSize().width/2, title_bg->getContentSize().height+15);
+        title_bg->addChild(title);
+        
         int model = UserDefault::getInstance()->getIntegerForKey("game_model");
         if(model == 1)
         {
@@ -627,44 +728,47 @@ void MainScene2D::addGameTouchLayer(bool isWin)
         
         randZongFen();
         
-        std::string s = v_font.at(3).asString();
-        Text* label = Text::create(s, "", 50);
-        label->setColor(Color3B::WHITE);
-        label->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f));
-        layer->addChild(label);
+//        std::string s = v_font.at(3).asString();
+//        Text* label = Text::create(s, "", 50);
+//        label->setColor(Color3B::WHITE);
+//        label->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f));
+//        layer->addChild(label);
         
-        s = v_font.at(15).asString();
+        std::string s = v_font.at(15).asString();
         char c[8];
         sprintf(c, "%d", zongfen);
-        Text* label2 = Text::create(s+c+v_font.at(14).asString(), "", 30);
-        label2->setColor(Color3B::WHITE);
-        label2->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f-50));
-        layer->addChild(label2);
+        Text* label2 = Text::create(s+c+v_font.at(14).asString(), "", 36);
+        label2->setColor(Color3B(120,56,45));
+        label2->setPosition(Vec2(bgSize.width / 2.0f, bgSize.height * 0.6));
+        bg->addChild(label2);
         
-        auto diban = Sprite::create("diban.png");
-        diban->setPosition(Vec2(size.width*0.3f+60, size.height * 0.5f+30));
-        layer->addChild(diban);
-        Button* btn = Button::create("home.png");
-        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+        Button* btn = Button::create("anniu-17.png","anniu-18.png");
+        btn->setPosition(Vec2(bgSize.width*0.5f, bgSize.height * 0.2f));
         btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        diban->addChild(btn);
-        btn->setName("home");
-        
-        diban = Sprite::create("diban.png");
-        diban->setPosition(Vec2(size.width*0.7f-60, size.height * 0.5f+30));
-        layer->addChild(diban);
-        btn = Button::create("jixu.png");
-        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        diban->addChild(btn);
-        btn->setName("replay");
-        
-        
-        btn = Button::create("fenxiang2.png");
-        btn->setPosition(Vec2(size.width*0.5f, size.height * 0.3f));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        layer->addChild(btn);
+        bg->addChild(btn);
         btn->setName("fenxiang");
+        auto wenzi = Sprite::create("zi-4.png");
+        wenzi->setPosition(Vec2(btn->getContentSize().width/2,btn->getContentSize().height/2));
+        btn->addChild(wenzi);
+        
+        
+        btn = Button::create("anniu-17.png","anniu-18.png");
+        btn->setPosition(Vec2(bgSize.width*0.1f+100, bgSize.height * 0.2f));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        bg->addChild(btn);
+        btn->setName("home");
+        wenzi = Sprite::create("zi-3.png");
+        wenzi->setPosition(Vec2(btn->getContentSize().width/2,btn->getContentSize().height/2));
+        btn->addChild(wenzi);
+        
+        btn = Button::create("anniu-19.png","anniu-20.png");
+        btn->setPosition(Vec2(bgSize.width*0.9f-100, bgSize.height * 0.2f));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        bg->addChild(btn);
+        btn->setName("replay");
+        wenzi = Sprite::create("zi-5.png");
+        wenzi->setPosition(Vec2(btn->getContentSize().width/2,btn->getContentSize().height/2));
+        btn->addChild(wenzi);
         
         int coin = UserDefault::getInstance()->getIntegerForKey("coin");
         int award = score;
@@ -673,65 +777,104 @@ void MainScene2D::addGameTouchLayer(bool isWin)
         std::string level_s = "level_";
         level_s+=c;
         
-        if(dt_time > 0 && !UserDefault::getInstance()->getBoolForKey(level_s.c_str()))
+        int start = 3;
+        if(skillNum == 1)
+            start = 2;
+        else if(skillNum >= 2)
+            start = 1;
+        
+        if(dt_time > 0 && start > UserDefault::getInstance()->getIntegerForKey(level_s.c_str()))
         {
             award = score * 2;
             
-            UserDefault::getInstance()->setBoolForKey(level_s.c_str(),true);
+            UserDefault::getInstance()->setIntegerForKey(level_s.c_str(),start);
         }
         UserDefault::getInstance()->setIntegerForKey("coin", coin+award);
         sprintf(c, "%i", coin+award);
         l_coin->setString(c);
   
         sprintf(c, "%d", award);
-        Text* label3 = Text::create(v_font.at(19).asString()+c, "", 20);
-        label3->setColor(Color3B::BLUE);
-        label3->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f-100));
-        layer->addChild(label3);
+        Text* label3 = Text::create(v_font.at(19).asString()+c, "", 30);
+        label3->setColor(Color3B(120,56,45));
+        label3->setPosition(Vec2(bgSize.width / 2.0f, bgSize.height * 0.5f));
+        bg->addChild(label3);
+        
+        auto start1 = Sprite::create("0-5.png");
+        start1->setPosition(Vec2(bgSize.width / 2.0f, bgSize.height * 0.82f));
+        bg->addChild(start1);
+        
+        auto start2 = Sprite::create("0-5.png");
+        start2->setPosition(Vec2(bgSize.width / 2.0f-start1->getContentSize().width/2-40, bgSize.height * 0.82f));
+        bg->addChild(start2);
+        
+        auto start3 = Sprite::create("0-5.png");
+        start3->setPosition(Vec2(bgSize.width / 2.0f+start1->getContentSize().width/2+40, bgSize.height * 0.82f));
+        bg->addChild(start3);
+        
+        if(start == 2)
+        {
+            start3->initWithFile("0-6.png");
+        }
+        else if(start == 1)
+        {
+            start1->initWithFile("0-6.png");
+            start3->initWithFile("0-6.png");
+        }
         
         showAd(1);
     }
     else
     {
+        auto title = Sprite::create("2-5.png");
+        title->setAnchorPoint(Vec2(0.5,1));
+        title->setPosition(title_bg->getContentSize().width/2, title_bg->getContentSize().height+15);
+        title_bg->addChild(title);
+
+        
         randZongFen();
         
-        std::string s = v_font.at(2).asString();
-        Text* label = Text::create(s, "", 50);
-        label->setColor(Color3B::WHITE);
-        label->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f));
-        layer->addChild(label);
+//        std::string s = v_font.at(2).asString();
+//        Text* label = Text::create(s, "", 50);
+//        label->setColor(Color3B::WHITE);
+//        label->setPosition(Vec2(bgSize.width / 2.0f, bgSize.height * 0.78f));
+//        bg->addChild(label);
         
 //        s = v_font.at(13).asString();
 //        char c[8];
 //        sprintf(c, "%d", zongfen);
-        Text* label2 = Text::create(v_font.at(16).asString(), "", 30);
-        label2->setColor(Color3B::WHITE);
-        label2->setPosition(Vec2(size.width / 2.0f, size.height * 0.78f-50));
-        layer->addChild(label2);
+        Text* label2 = Text::create(v_font.at(16).asString(), "", 36);
+        label2->setColor(Color3B(120,56,45));
+        label2->setPosition(Vec2(bgSize.width / 2.0f, bgSize.height * 0.6));
+        bg->addChild(label2);
         
-        auto diban = Sprite::create("diban.png");
-        diban->setPosition(Vec2(size.width*0.3f+60, size.height * 0.5f+30));
-        layer->addChild(diban);
-        Button* btn = Button::create("home.png");
-        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
+        Button* btn = Button::create("anniu-17.png","anniu-18.png");
+        btn->setPosition(Vec2(bgSize.width*0.5f, bgSize.height * 0.2f));
         btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        diban->addChild(btn);
-        btn->setName("home");
-        
-        diban = Sprite::create("diban.png");
-        diban->setPosition(Vec2(size.width*0.7f-60, size.height * 0.5f+30));
-        layer->addChild(diban);
-        btn = Button::create("replay.png");
-        btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        diban->addChild(btn);
-        btn->setName("replay");
-        
-        btn = Button::create("fenxiang2.png");
-        btn->setPosition(Vec2(size.width*0.5f, size.height * 0.3f));
-        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-        layer->addChild(btn);
+        bg->addChild(btn);
         btn->setName("fenxiang");
+        auto wenzi = Sprite::create("zi-4.png");
+        wenzi->setPosition(Vec2(btn->getContentSize().width/2,btn->getContentSize().height/2));
+        btn->addChild(wenzi);
+        
+        
+        btn = Button::create("anniu-17.png","anniu-18.png");
+        btn->setPosition(Vec2(bgSize.width*0.1f+100, bgSize.height * 0.2f));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        bg->addChild(btn);
+        btn->setName("home");
+        wenzi = Sprite::create("zi-3.png");
+        wenzi->setPosition(Vec2(btn->getContentSize().width/2,btn->getContentSize().height/2));
+        btn->addChild(wenzi);
+ 
+        btn = Button::create("anniu-19.png","anniu-20.png");
+        btn->setPosition(Vec2(bgSize.width*0.9f-100, bgSize.height * 0.2f));
+        btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
+        bg->addChild(btn);
+        btn->setName("replay");
+        wenzi = Sprite::create("zi-6.png");
+        wenzi->setPosition(Vec2(btn->getContentSize().width/2,btn->getContentSize().height/2));
+        btn->addChild(wenzi);
+        
         
         
         showAd(2);
@@ -751,7 +894,7 @@ void MainScene2D::startGame(Ref *sender)
     
     dt_stop = 0;
     dt_time = 60;
-    l_time->setString(v_font.at(17).asString() + "60");
+    l_time->setString("60");
     
     int coin = UserDefault::getInstance()->getIntegerForKey("coin");
     char c[8];
@@ -762,6 +905,15 @@ void MainScene2D::startGame(Ref *sender)
     {
         score = 0;
         l_score->setString("0");
+        
+        int wudi_num = UserDefault::getInstance()->getIntegerForKey("wudi_num");
+        if(wudi_num < 1)
+            UserDefault::getInstance()->setIntegerForKey("wudi_num",1);
+        int suaxin_num = UserDefault::getInstance()->getIntegerForKey("suaxin_num");
+        if(suaxin_num < 1)
+            UserDefault::getInstance()->setIntegerForKey("suaxin_num",1);
+        
+        skillNum = 0;
     }
     
     preInit();
@@ -794,6 +946,8 @@ void MainScene2D::randZongFen()
         r = num;
     }
     zongfen = r;
+    
+   
 }
 
 void MainScene2D::preInit()
@@ -877,10 +1031,10 @@ void MainScene2D::addSprite(Vec2 v)
     
     auto ball = Sprite::create("huochai.png");
     //ball->setAnchorPoint(Vec2::ZERO);createEdgeBox(Size(42,272),PhysicsMaterial(1,0.8,1),1);
-//    Vec2 edges[] = {Vec2(-146, -72),Vec2(-146, 34),Vec2(-108, 72),
-//        Vec2(108, 72),Vec2(146, 34),Vec2(146, -72)};
-//    auto book_body = PhysicsBody::createPolygon(edges,6);
-    auto body = PhysicsBody::createBox(Size(42,272),PhysicsMaterial(1,0.8,1));
+    Vec2 edges[] = {Vec2(-20, -132),Vec2(-20, 125),Vec2(-0, 135),
+        Vec2(0, 135),Vec2(20, 125),Vec2(20, -132)};
+    auto body = PhysicsBody::createPolygon(edges,6,PhysicsMaterial(1,0.8,1),Vec2::ZERO);
+//    auto body = PhysicsBody::createBox(Size(42,272),PhysicsMaterial(1,0.8,1));
     body->setName("box");
     body->setDynamic(true);
     body->setEnabled(false);
@@ -892,6 +1046,7 @@ void MainScene2D::addSprite(Vec2 v)
     auto balltou = Sprite::create("huocaitou.png");
     balltou->setPosition(ball->getContentSize().width/2,
                          ball->getContentSize().height-balltou->getContentSize().height/2);
+    balltou->setName("tou");
     ball->addChild(balltou);
     
     //body->setCategoryBitmask(z-1);    // 1000
@@ -1021,42 +1176,79 @@ void MainScene2D::duihuan(int type)
     auto bg = LayerColor::create(Color4B(0,0,0,160),winSize.width,winSize.height);
     layer->addChild(bg);
     
-    auto bg2 = Sprite::create("duihuan_1.png");
+    auto bg2 = Sprite::create("2-1.png");
     bg2->setPosition(winSize.width/2, winSize.height/2+80);
     layer->addChild(bg2);
     
+    Size bgSize = bg2->getContentSize();
     
-    Label* l = Label::createWithSystemFont("100", "", 24);
-    l->setColor(Color3B::RED);
-    l->setPosition(183, 194);
-    bg2->addChild(l);
+    auto title_bg = Sprite::create("2-2.png");
+    title_bg->setAnchorPoint(Vec2(0.5,1));
+    title_bg->setPosition(bgSize.width/2, bgSize.height+12);
+    bg2->addChild(title_bg);
+    
+    auto title = Sprite::create("zi-1.png");
+    title->setAnchorPoint(Vec2(0.5,1));
+    title->setPosition(title_bg->getContentSize().width/2, title_bg->getContentSize().height-10);
+    title_bg->addChild(title);
+    
+    Node* node = Node::create();
+    
+    Label* l1 = Label::createWithSystemFont(v_font.at(25).asString(), "", 42);
+    l1->setAnchorPoint(Vec2(0,0.5));
+    l1->setColor(Color3B::BLACK);
+    node->addChild(l1);
+    
+    Label* l2 = Label::createWithSystemFont(" 100 ", "", 40);
+    l2->setAnchorPoint(Vec2(0,0.5));
+    l2->setColor(Color3B::RED);
+    l2->setPosition(l1->getPositionX() +l1->getContentSize().width,0);
+    node->addChild(l2);
+    
+    Label* l3 = Label::createWithSystemFont(v_font.at(26).asString(), "", 42);
+    l3->setAnchorPoint(Vec2(0,0.5));
+    l3->setColor(Color3B::BLACK);
+    l3->setPosition(l2->getPositionX() + l2->getContentSize().width,0);
+    node->addChild(l3);
+    
     
     auto daoju = Sprite::create();
     if(type == 1)
     {
-        daoju->initWithFile("suaxin.png");
+        daoju->initWithFile("anniu-13.png");
     }
     else
     {
-        daoju->initWithFile("wudi.png");
+        daoju->initWithFile("anniu-11.png");
     }
-    daoju->setPosition(206, 96);
-    bg2->addChild(daoju);
+    daoju->setAnchorPoint(Vec2(0,0.5));
+    daoju->setPosition(l3->getPositionX() + l3->getContentSize().width,0);
+    node->addChild(daoju);
+    
+    node->setContentSize(Size(daoju->getPositionX()+daoju->getContentSize().width,
+                              daoju->getContentSize().height));
+    node->setPosition(bgSize.width/2-node->getContentSize().width/2, bgSize.height*0.53f);
+    bg2->addChild(node);
 
-    Button* duihuan = Button::create("duihuan_2.png");
+    Button* duihuan = Button::create("anniu-15.png","anniu-16.png");
     duihuan->setAnchorPoint(Vec2(0.5,1));
     duihuan->setPosition(Vec2(bg2->getContentSize().width/2,-10));
     duihuan->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
     bg2->addChild(duihuan);
     duihuan->setTag(type);
     duihuan->setName("duihuan");
+    auto btnSp = Sprite::create("zi-2.png");
+    btnSp->setPosition(Vec2(duihuan->getContentSize().width/2,duihuan->getContentSize().height/2));
+    duihuan->addChild(btnSp);
     
-    Button* btn = Button::create("002.png","003.png");
+    Button* btn = Button::create("2-3.png","2-4.png");
     btn->setAnchorPoint(Vec2(1,1));
-    btn->setPosition(Vec2(bg2->getContentSize().width-10,bg2->getContentSize().height-10));
+    btn->setPosition(Vec2(bg2->getContentSize().width-50,bg2->getContentSize().height-40));
     btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
     bg2->addChild(btn);
     btn->setName("close_duihuan");
+    
+    
 }
 
 void MainScene2D::shuaxin()
@@ -1075,6 +1267,7 @@ void MainScene2D::shuaxin()
         l_suaxin->setString(c);
     }
     isShuaXin = true;
+    skillNum++;
     startGame(nullptr);
 }
 
@@ -1095,123 +1288,7 @@ void MainScene2D::wudi()
     }
     sel = nullptr;
     isWuDi = true;
-}
-
-void MainScene2D::guanqia()
-{
-    Size winSize = Director::getInstance()->getWinSize();
-    
-    auto layer = TouchLayer::create();
-    layer->setName("touchLayer");
-    this->addChild(layer, 101);
-    
-    auto bg = LayerColor::create(Color4B(0,0,0,160),winSize.width,winSize.height);
-    layer->addChild(bg);
-    
-    auto sp = Sprite::create("guanqia_sel.png");
-    sp->setPosition(Vec2(winSize.width/2,winSize.height/2));
-    bg->addChild(sp);
-    
-    // Create the page view
-    PageView* pageView = PageView::create();
-    pageView->setName("guanqia");
-    pageView->setDirection(PageView::Direction::HORIZONTAL);
-    pageView->setContentSize(Size(836,430));
-    pageView->setPosition(Vec2(12,30));
-    pageView->setCustomScrollThreshold(40);
-    
-    pageView->removeAllPages();
-    
-    int pageCount = 3;
-    int row = 2;
-    int col = 6;
-    float item_w = (pageView->getContentSize().width - 20)/col;
-    float item_h = (pageView->getContentSize().height - 20)/row;
-    float h = pageView->getContentSize().height - 40;
-    char c[7];
-    int level =  UserDefault::getInstance()->getIntegerForKey("level");
-    for (int i = 0; i < pageCount; ++i)
-    {
-        Layout* layout = Layout::create();
-        layout->setContentSize(pageView->getContentSize());
-        
-        for(int j=0;j<row;j++)
-        {
-            for(int q=0;q<col;q++)
-            {
-                int tag = i * row * col + j*col + q + 3;
-                Button* btn = Button::create("guanqia_1.jpg");
-                btn->setTag(tag);
-                btn->setAnchorPoint(Vec2(0,1));
-                btn->setPosition(Vec2(26+item_w*q,h - item_h*j*0.8));
-                btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-                layout->addChild(btn);
-                btn->setName("sel_guanqia");
-                
-                sprintf(c, "%d", tag-2);
-                btn->setTitleColor(Color3B::RED);
-                btn->setTitleFontSize(34);
-                btn->setTitleText(c);
-                
-                if(tag > level)
-                {
-                    btn->loadTextureNormal("guanqia_2.jpg");
-                }
-                else
-                {
-                    sprintf(c, "%d", tag);
-                    std::string level_s = "level_";
-                    level_s+=c;
-                    
-                    auto pro = Sprite::create();
-                    if(UserDefault::getInstance()->getBoolForKey(level_s.c_str()))
-                    {
-                        pro->initWithFile("wanmei.png");
-                    }
-                    else
-                    {
-                         pro->initWithFile("putong.png");
-                    }
-                    pro->setAnchorPoint(Vec2(0.5,0));
-                    pro->setTag(1);
-                    pro->setPosition(btn->getContentSize().width/2, 6);
-                    btn->addChild(pro);
-                }
-            }
-        }
-        pageView->addPage(layout);
-        
-        auto dian = Sprite::create("dian_2.png");
-        float b = 0;
-        if(i < pageCount/2)
-            b = -(pageCount/2 - i)*50;
-        else if(i > pageCount/2)
-             b = (i - pageCount/2)*50;
-        float x = sp->getContentSize().width/2 + b;
-        dian->setPosition(x, winSize.height*0.08f);
-        //dian->setScale(0.7);
-        dian->setTag(i+1);
-        sp->addChild(dian,1);
-        
-        if(i == 0)
-        {
-            dian->initWithFile("dian_1.png");
-        }
-    }
-    
-    //pageView->removePageAtIndex(0);
-    // pageView->scrollToPage(0);
-    
-    Button* btn = Button::create("002.png","003.png");
-    btn->setAnchorPoint(Vec2(0,1));
-    btn->setPosition(Vec2(10,winSize.height-10));
-    btn->addTouchEventListener(CC_CALLBACK_2(MainScene2D::touchEvent, this));
-    bg->addChild(btn);
-    btn->setName("close_guanqia");
-    
-    pageView->addEventListener(CC_CALLBACK_2(MainScene2D::pageViewEvent, this));
-    
-    sp->addChild(pageView,1);
+    skillNum++;
 }
 
 bool MainScene2D::onTouchBegan(Touch* touch, Event* event)
@@ -1275,7 +1352,7 @@ void MainScene2D::onTouchEnded(Touch* touch, Event* event)
             PhysicsBody* body = (PhysicsBody*)sel->getComponent("box");
             Vec2 dir =  touch->getLocation() - lastDir;
             dir.normalize();
-            body->setVelocity(dir*2000);
+            body->setVelocity(dir*5000);
         }
     }
 }
@@ -1296,6 +1373,7 @@ void MainScene2D::onEnter()
      //startGame(nullptr);
     
     bool yindao = UserDefault::getInstance()->getBoolForKey("yindao");
+    yindao = true;
     if(!yindao)
     {
        // UserDefault::getInstance()->setIntegerForKey("level",3);
@@ -1438,10 +1516,6 @@ void MainScene2D::touchEvent(Ref *pSender, Widget::TouchEventType type)
             else if(name == "wudi")
             {
                 wudi();
-            }
-            else if(name == "guanqia")
-            {
-                guanqia();
             }
             else if(name == "close_guanqia")
             {
@@ -1720,7 +1794,7 @@ bool HomeScene::init()
     {
         return false;
     }
-    
+
     if(jump_home)
     {
         goHome();
@@ -1735,13 +1809,14 @@ bool HomeScene::init()
     logo->setPosition(s.width/2,s.height/2);
     this->addChild(logo);
     
-//    bool first = UserDefault::getInstance()->getBoolForKey("first");
-//    if(!first)
-//    {
+    bool first = UserDefault::getInstance()->getBoolForKey("first");
+    if(!first)
+    {
         UserDefault::getInstance()->setBoolForKey("music", false);
         UserDefault::getInstance()->setBoolForKey("sound", false);
-        UserDefault::getInstance()->setBoolForKey("first", false);
-//    }
+        UserDefault::getInstance()->setBoolForKey("first", true);
+        UserDefault::getInstance()->setIntegerForKey("level",3);
+    }
     int day = UserDefault::getInstance()->getIntegerForKey("day");
     int curr_day = getcurrDay();
     if(day != curr_day)
@@ -1781,21 +1856,14 @@ bool HomeScene::init()
 
 void HomeScene::goHome()
 {
+    v_font =  FileUtils::getInstance()->getValueVectorFromFile("fonts/font.plist");
+    
     Size s = Director::getInstance()->getWinSize();
     
     auto homebg = Sprite::create("bg.png");
     homebg->setPosition(s.width/2,s.height/2);
     this->addChild(homebg);
     
-    
-//    auto tanzi = Sprite::create("tanzi.png");
-//    tanzi->setPosition(0, 80);
-//    this->addChild(tanzi);
-//    
-//    auto bottom = Sprite::create("bottom.png");
-//    bottom->setAnchorPoint(Vec2(0.5,0));
-//    bottom->setPosition(s.width/2, 0);
-//    this->addChild(bottom);
  
 
     Button* btn_start = Button::create("cuangguan.png");
@@ -1832,34 +1900,225 @@ void HomeScene::goHome()
     this->addChild(_editNum);*/
 
     
-//    auto diban = Sprite::create("diban.png");
-//    diban->setAnchorPoint(Vec2(0.5,1));
-//    diban->setPosition(s.width/3.0f+60,s.height);
-//    this->addChild(diban);
-//    
-//    Button* btn = Button::create("fankui.png");
-//    btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-//    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
-//    diban->addChild(btn);
-//    btn->setName("fankui");
-//    
-//    
-//    diban = Sprite::create("diban.png");
-//    diban->setAnchorPoint(Vec2(0.5,1));
-//    diban->setPosition(s.width/3.0f*2-60,s.height);
-//    this->addChild(diban);
     
-//    btn = Button::create("fenxiang.png");
-//    btn->setPosition(Vec2(diban->getContentSize().width/2,diban->getContentSize().height/2));
-//    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
-//    diban->addChild(btn);
-//    btn->setName("fenxiang");
-//    //Director::getInstance()->replaceScene(MainScene2D::create());
-//    
-//    tanzi->runAction(RepeatForever::create(Sequence::create(
-//                                                            MoveTo::create(12, Vec2(s.width+tanzi->getContentSize().width/2,tanzi->getPositionY())),
-//                                                            MoveTo::create(0, Vec2(-tanzi->getContentSize().width/2,tanzi->getPositionY())),NULL)));
+    Button* btn = Button::create("anniu-7.png","anniu-8.png");
+    btn->setPosition(Vec2(s.width*0.9f,100));
+    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
+    this->addChild(btn);
+    btn->setName("fenxiang");
+
+    btn = Button::create("anniu-5.png","anniu-6.png");
+    btn->setPosition(Vec2(s.width*0.8f,100));
+    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
+    this->addChild(btn);
+    btn->setName("chengjiu");
     
+    btn = Button::create("anniu-3.png","anniu-4.png");
+    btn->setPosition(Vec2(s.width*0.7f,100));
+    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
+    this->addChild(btn);
+    btn->setName("libao");
+    
+    btn = Button::create("anniu-1.png","anniu-2.png");
+    btn->setPosition(Vec2(s.width*0.6f,100));
+    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
+    this->addChild(btn);
+    btn->setName("paihang");
+    
+    btn = Button::create("anniu-9.png","anniu-10.png");
+    btn->setPosition(Vec2(s.width*0.06f,100));
+    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
+    this->addChild(btn);
+    btn->setName("yindao");
+    
+    btn = Button::create("setting.png","setting_2.png");
+    btn->setAnchorPoint(Vec2(1,1));
+    btn->setPosition(Vec2(s.width-60,s.height-40));
+    btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
+    this->addChild(btn);
+    btn->setName("setting");
+    
+    
+    auto tilibg = Sprite::create("0-7.png");
+    tilibg->setAnchorPoint(Vec2(0,1));
+    tilibg->setPosition(Vec2(100,s.height-40));
+    this->addChild(tilibg);
+    
+    auto label = LabelAtlas::create("0", "fonts/shuzi.png", 28, 44, '0');
+    label->setPosition(Vec2(100, 20));
+    tilibg->addChild(label);
+    
+    
+    auto baoshibg = Sprite::create("0-8.png");
+    baoshibg->setAnchorPoint(Vec2(0,1));
+    baoshibg->setPosition(Vec2(500,s.height-40));
+    this->addChild(baoshibg);
+    
+    int coin = UserDefault::getInstance()->getIntegerForKey("coin");
+    char c[7];
+    sprintf(c, "%i", coin);
+    
+    label = LabelAtlas::create(c, "fonts/shuzi.png", 28, 44, '0');
+    label->setPosition(Vec2(100, 20));
+    baoshibg->addChild(label);
+    
+    guanqia();
+}
+
+void HomeScene::guanqia()
+{
+    Size winSize = Director::getInstance()->getWinSize();
+    
+    auto bg = Layer::create();
+    this->addChild(bg,101);
+    
+    auto sp = Sprite::create("guanqia_sel.png");
+    sp->setPosition(Vec2(winSize.width/2,winSize.height/2));
+    bg->addChild(sp);
+    
+    // Create the page view
+    PageView* pageView = PageView::create();
+    pageView->setName("guanqia");
+    pageView->setDirection(PageView::Direction::HORIZONTAL);
+    pageView->setContentSize(Size(1200,550));
+    pageView->setPosition(Vec2(180,30));
+    pageView->setCustomScrollThreshold(40);
+    
+    pageView->removeAllPages();
+    
+    int pageCount = 3;
+    int row = 2;
+    int col = 5;
+    float item_w = (pageView->getContentSize().width - 20)/col;
+    float item_h = (pageView->getContentSize().height - 20)/row;
+    float h = pageView->getContentSize().height - 40;
+    char c[7];
+    int level =  UserDefault::getInstance()->getIntegerForKey("level");
+    for (int i = 0; i < pageCount; ++i)
+    {
+        Layout* layout = Layout::create();
+        layout->setContentSize(pageView->getContentSize());
+        
+        for(int j=0;j<row;j++)
+        {
+            for(int q=0;q<col;q++)
+            {
+                int tag = i * row * col + j*col + q + 3;
+                Button* btn = Button::create("guanqia_1.png");
+                btn->setTag(tag);
+                btn->setAnchorPoint(Vec2(0,1));
+                btn->setPosition(Vec2(26+item_w*q,h - item_h*j*0.8));
+                btn->addTouchEventListener(CC_CALLBACK_2(HomeScene::touchEvent, this));
+                layout->addChild(btn);
+                btn->setName("sel_guanqia");
+                
+                sprintf(c, "%d", tag-2);
+                std::string s = v_font.at(27).asString() + c + v_font.at(28).asString();
+                btn->setTitleColor(Color3B(173,111,77));
+                btn->setTitleFontSize(36);
+                btn->setTitleText(s);
+                btn->getTitleRenderer()->setPositionY(btn->getTitleRenderer()->getPositionY() + 12);
+                
+                if(tag > level)
+                {
+                    btn->loadTextureNormal("guanqia_2.png");
+                }
+                else if (tag == level)
+                {
+                    auto pro = Layer::create();
+                    pro->setContentSize(btn->getContentSize());
+                    pro->setTag(1);
+                    btn->addChild(pro);
+                    
+                    auto news = Sprite::create("0-4.png");
+                    news->setAnchorPoint(Vec2(0,1));
+                    news->setPosition(Vec2(-3,pro->getContentSize().height));
+                    pro->addChild(news);
+                }
+                else
+                {
+                    sprintf(c, "%d", tag);
+                    std::string level_s = "level_";
+                    level_s+=c;
+                    
+                    auto pro = Layer::create();
+                    pro->setContentSize(btn->getContentSize());
+                    int start = UserDefault::getInstance()->getIntegerForKey(level_s.c_str());
+                    if(start > 0)
+                    {
+//                        pro->initWithFile("wanmei.png");
+                        auto s1 = Sprite::create("0-5.png");
+                        s1->setAnchorPoint(Vec2(0.5,0));
+                        s1->setScale(0.9f);
+                        pro->addChild(s1);
+                        
+                        auto s2 = Sprite::create("0-5.png");
+                        s2->setAnchorPoint(Vec2(0.5,0));
+                        s2->setPosition(Vec2(pro->getContentSize().width/2,0));
+                        pro->addChild(s2);
+                        
+                        auto s3 = Sprite::create("0-5.png");
+                        s3->setAnchorPoint(Vec2(0.5,0));
+                        s3->setScale(0.9f);
+                        s3->setPosition(Vec2(s2->getPositionX()+s2->getContentSize().width/2+24,0));
+                        pro->addChild(s3);
+                        
+                        s1->setPosition(Vec2(s2->getPositionX()-s2->getContentSize().width/2-24,0));
+                        
+                        if(start == 1)
+                        {
+                            s2->initWithFile("0-6.png");
+                            s2->setAnchorPoint(Vec2(0.5,0));
+                            
+                            s3->initWithFile("0-6.png");
+                            s3->setAnchorPoint(Vec2(0.5,0));
+                            s3->setScale(0.9f);
+                        }
+                        else if(start == 2)
+                        {
+                            s3->initWithFile("0-6.png");
+                            s3->setAnchorPoint(Vec2(0.5,0));
+                            s3->setScale(0.9f);
+                        }
+                    }
+                    else
+                    {
+//                        pro->initWithFile("putong.png");
+                    }
+//                    pro->setAnchorPoint(Vec2(0.5,0));
+                    pro->setTag(1);
+//                    pro->setPosition(btn->getContentSize().width/2, 6);
+                    btn->addChild(pro);
+                }
+            }
+        }
+        pageView->addPage(layout);
+        
+        auto dian = Sprite::create("dian_2.png");
+        float b = 0;
+        if(i < pageCount/2)
+            b = -(pageCount/2 - i)*50;
+        else if(i > pageCount/2)
+            b = (i - pageCount/2)*50;
+        float x = sp->getContentSize().width/2 + b;
+        dian->setPosition(x, winSize.height*0.08f);
+        //dian->setScale(0.7);
+        dian->setTag(i+1);
+        sp->addChild(dian,1);
+        
+        if(i == 0)
+        {
+            dian->initWithFile("dian_1.png");
+        }
+    }
+    
+    //pageView->removePageAtIndex(0);
+    // pageView->scrollToPage(0);
+    
+    
+    pageView->addEventListener(CC_CALLBACK_2(HomeScene::pageViewEvent, this));
+    
+    sp->addChild(pageView,1);
 }
 
 void HomeScene::touchEvent(Ref *pSender, Widget::TouchEventType type)
@@ -1918,9 +2177,52 @@ void HomeScene::touchEvent(Ref *pSender, Widget::TouchEventType type)
                     sco = 3;
                 MainScene2D::fenxiang(sco);
             }
+            else if(name == "sel_guanqia")
+            {
+                if(!btn->getChildByTag(1))
+                    break;
+                UserDefault::getInstance()->setIntegerForKey("curr_level", btn->getTag());
+                UserDefault::getInstance()->setIntegerForKey("game_model", 1);
+                auto scene = TransitionFade::create(1, MainScene2D::create(), Color3B::WHITE);
+                Director::getInstance()->replaceScene(scene);
+                MainScene2D::level_guoguan();
+
+            }
             break;
             
         case Widget::TouchEventType::CANCELED:
+            break;
+            
+        default:
+            break;
+    }
+}
+
+void HomeScene::pageViewEvent(Ref *pSender, PageView::EventType type)
+{
+    switch (type)
+    {
+        case PageView::EventType::TURNING:
+        {
+            PageView* pageView = dynamic_cast<PageView*>(pSender);
+            if(pageView->getName() == "guanqia")
+            {
+                int index = pageView->getCurPageIndex() + 1;
+                Sprite* sp = (Sprite*)pageView->getParent()->getChildByTag(index);
+                sp->initWithFile("dian_1.png");
+                
+                sp = (Sprite*)pageView->getParent()->getChildByTag(index+1);
+                if(sp)
+                {
+                    sp->initWithFile("dian_2.png");
+                }
+                sp = (Sprite*)pageView->getParent()->getChildByTag(index-1);
+                if(sp)
+                {
+                    sp->initWithFile("dian_2.png");
+                }
+            }
+        }
             break;
             
         default:

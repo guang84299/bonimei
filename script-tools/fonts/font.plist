@@ -20,12 +20,16 @@
 	<string>下关目标：</string>
 	<string>分享成功后跳过本关哦！</string>
 	<string>倒计时：</string>
-	<string>金币：</string>
-	<string>奖励金币：</string>
-	<string>花费100金币兑换一个无敌道具？</string>
-	<string>花费100金币兑换一个刷新道具？</string>
+	<string>宝石：</string>
+	<string>奖励宝石：</string>
+	<string>花费100宝石兑换一个无敌道具？</string>
+	<string>花费100宝石兑换一个刷新道具？</string>
 	<string>兑换</string>
 	<string>兑换成功！</string>
-	<string>金币不足！</string>
+	<string>宝石不足！</string>
+	<string>是否花</string>
+	<string>钻石购买</string>
+	<string>第</string>
+	<string>关</string>
 </array>
 </plist>

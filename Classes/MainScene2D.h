@@ -15,6 +15,16 @@
 USING_NS_CC;
 using namespace cocos2d::ui;
 
+class GSprite : public Sprite
+{
+public:
+    static GSprite* create(int type);
+    bool init(int type);
+    Animate* createAnimate(const std::string &file,int num,float speed);
+public:
+    int type;
+};
+
 class MainScene2D : public Scene
 {
 public:
@@ -72,7 +82,6 @@ public:
     
     void shuaxin();
     void wudi();
-    void guanqia();
     void duihuan(int type);
     void duihuanResult(int type);
 protected:
@@ -87,6 +96,7 @@ protected:
     std::unordered_map<int, Node*> _mouses;
     std::vector<Sprite*> sprites;
     //std::vector<Sprite*> removes;
+    std::vector<GSprite*> gss;
     std::vector<Sprite*> moves;
     std::vector<Vec2> vecs;
     std::vector<Vec2> vecs_min;
@@ -98,8 +108,9 @@ protected:
     
     int score;
     int zongfen;
+    int skillNum = 0;
     Label* l_score;
-    Label* l_time;
+    LabelAtlas* l_time;
     Label* l_coin;
     Label* l_wudi;
     Label* l_suaxin;
@@ -116,7 +127,9 @@ class HomeScene : public Scene, public EditBoxDelegate
 public:
      virtual bool init() override;
     void goHome();
+    void guanqia();
     void touchEvent(Ref *pSender, Widget::TouchEventType type);
+    void pageViewEvent(Ref *pSender, PageView::EventType type);
     
     virtual void editBoxEditingDidBegin(EditBox* editBox)override;
     virtual void editBoxEditingDidEnd(EditBox* editBox)override;
@@ -135,6 +148,7 @@ private:
     int _num;
     cocos2d::Label *label_text;
     EditBox* _editNum;
+    ValueVector v_font;
 };
 
 class TouchLayer : public Layer

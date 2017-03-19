@@ -37,7 +37,6 @@ import cn.sharesdk.onekeyshare.OnekeyShare;
 
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.analytics.MobclickAgent.EScenarioType;
-import com.xugu.qewadlib.GAdController;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -61,7 +60,6 @@ public class AppActivity extends Cocos2dxActivity {
 		 
 		MobclickAgent.setScenarioType(this, EScenarioType.E_UM_GAME);
 					
-		GAdController.getInstance().init(this, true);  
 	}
 	
 	@Override
@@ -78,7 +76,6 @@ public class AppActivity extends Cocos2dxActivity {
 	
 	@Override
 	protected void onDestroy() {
-		GAdController.getInstance().destory(activity);
 		super.onDestroy();
 	}
 	
@@ -132,7 +129,6 @@ public class AppActivity extends Cocos2dxActivity {
 	
 	public static void showAd(final int i)
 	{
-		GAdController.getInstance().showSpotAd();
 	}
 	
 	
